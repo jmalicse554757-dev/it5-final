@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EnrollEase — Manage Sections</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0C447C;--navy2:#185FA5;--navy3:#042C53;--navy4:#EBF3FB;
+  --border:#E2E8F0;--bg:#F5F7FA;--text:#1E293B;--muted:#64748B;
+  --red:#B91C1C;--red-bg:#FEF2F2;--green:#2E7D32;--green-bg:#E8F5E9;
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
+}
+body{min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
+.topbar{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.logo{font-size:15px;font-weight:700;color:var(--navy3)}
+.logo-sub{font-size:10px;color:var(--muted)}
+.topbar-nav{display:flex;align-items:center;gap:2px;margin-left:16px}
+.nav-link{padding:6px 12px;border-radius:6px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:.15s}
+.nav-link:hover{color:var(--navy);background:var(--navy4)}
+.nav-link.active{color:var(--navy);background:var(--navy4);font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--navy4);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.user-name{font-size:13px;font-weight:600}
+.btn-logout{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;text-decoration:none;font-family:inherit;transition:.15s}
+.btn-logout:hover{color:var(--red);border-color:#FECACA}
+.page{flex:1;padding:32px}
+.page-inner{max-width:900px;margin:0 auto}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:20px;font-weight:700;color:var(--navy3)}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:0 16px;height:38px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:.15s;border:none}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.primary:hover{background:var(--navy2)}
+.btn.danger{background:var(--red-bg);color:var(--red);border:1px solid #FECACA}
+.btn.danger:hover{background:#FEE2E2}
+.btn.success{background:var(--green-bg);color:var(--green);border:1px solid #C8E6C9}
+.btn.sm{height:32px;padding:0 12px;font-size:12px}
+.alert{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:20px}
+.alert.success{background:var(--green-bg);color:var(--green);border:1px solid #C8E6C9}
+.alert.error{background:var(--red-bg);color:var(--red);border:1px solid #FECACA}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal-title{font-size:17px;font-weight:700;color:var(--navy3);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-row label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.form-row input,.form-row select{height:40px;padding:0 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:var(--text);transition:.15s;background:#fff}
+.form-row input:focus,.form-row select:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.modal-btns .btn{flex:1;justify-content:center}
+.btn.outline{background:#fff;color:var(--navy);border:1.5px solid var(--border)}
+.btn.outline:hover{background:var(--bg)}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600;color:var(--navy3)}
+.search-input{height:36px;padding:0 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:var(--text);width:220px;transition:.15s}
+.search-input:focus{border-color:var(--navy2)}
+table{width:100%;border-collapse:collapse}
+th{padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:#FAFBFC}
+td{padding:13px 16px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFBFC}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.stem{background:#E8F5E9;color:#2E7D32}
+.badge.abm{background:var(--navy4);color:var(--navy)}
+.badge.humss{background:#FFF8E1;color:#92600A}
+.badge.tvl{background:#FDF2F8;color:#9D174D}
+.badge.gas{background:#F0FDFA;color:#0F766E}
+.capacity-bar{height:6px;background:var(--border);border-radius:3px;margin-top:4px;width:100px}
+.capacity-fill{height:100%;border-radius:3px;background:var(--navy2)}
+.empty{padding:48px;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div>
+      <div class="logo">EnrollEase</div>
+      <div class="logo-sub">SHS Enrollment System</div>
+    </div>
+    <nav class="topbar-nav">
+      <a class="nav-link" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/students">Students</a>
+      <a class="nav-link" href="/pending">Pending</a>
+      <a class="nav-link" href="/assign">Assign</a>
+      <a class="nav-link" href="/reports">Reports</a>
+      <a class="nav-link" href="/admin/users">Users</a>
+      <a class="nav-link" href="/admin/strands">Strands</a>
+      <a class="nav-link active" href="/admin/sections">Sections</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <div class="user-avatar">{{ current_user.full_name[:2].upper() }}</div>
+    <div class="user-name">{{ current_user.full_name }}</div>
+    <a class="btn-logout" href="/logout">Log Out</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-inner">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Manage Sections</div>
+        <div class="page-sub">Add and manage sections per strand and grade level.</div>
+      </div>
+      <button class="btn primary" onclick="openModal()">+ Add Section</button>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Sections</div>
+        <input class="search-input" type="text" placeholder="Search section..." onkeyup="filterTable(this.value)"/>
+      </div>
+      <table id="sectionsTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Section Name</th>
+            <th>Strand</th>
+            <th>Grade Level</th>
+            <th>Capacity</th>
+            <th>Enrolled</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for section in sections %}
+          <tr>
+            <td style="color:var(--muted)">{{ loop.index }}</td>
+            <td><strong>{{ section.name }}</strong></td>
+            <td>
+              {% if section.strand %}
+              <span class="badge {{ section.strand.code|lower }}">{{ section.strand.code }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td>Grade {{ section.grade_level }}</td>
+            <td>
+              {% set enrolled = section.enrollments|selectattr('status','equalto','enrolled')|list|length %}
+              {{ enrolled }}/{{ section.capacity }}
+              <div class="capacity-bar">
+                <div class="capacity-fill" style="width:{{ [[(enrolled/section.capacity*100)|int, 0]|max, 100]|min }}%"></div>
+              </div>
+            </td>
+            <td>
+              {% set enrolled = section.enrollments|selectattr('status','equalto','enrolled')|list|length %}
+              <span style="font-weight:600;color:{{ 'var(--red)' if enrolled >= section.capacity else 'var(--green)' }}">
+                {{ 'Full' if enrolled >= section.capacity else 'Available' }}
+              </span>
+            </td>
+            <td>
+              <form method="POST" action="/admin/sections/{{ section.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this section?')">
+                <button class="btn sm danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="empty">No sections found. Add one to get started.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SECTION MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">Add New Section</div>
+    <div class="modal-sub">Fill in the section details below.</div>
+    <form method="POST" action="/admin/sections/create">
+      <div class="form-row">
+        <label>Section Name *</label>
+        <input type="text" name="name" placeholder="e.g. Einstein, Dagohoy" required/>
+      </div>
+      <div class="form-row">
+        <label>Strand *</label>
+        <select name="strand_id" required>
+          <option value="">Select strand</option>
+          {% for strand in strands %}
+          <option value="{{ strand.id }}">{{ strand.code }} — {{ strand.full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Grade Level *</label>
+        <select name="grade_level" required>
+          <option value="">Select grade</option>
+          <option value="11">Grade 11</option>
+          <option value="12">Grade 12</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Capacity *</label>
+        <input type="number" name="capacity" placeholder="e.g. 40" min="1" max="60" required/>
+      </div>
+      <div class="modal-btns">
+        <button type="button" class="btn outline" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn primary">Add Section</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal(){ document.getElementById('modalOverlay').classList.add('open') }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open') }
+function handleOverlayClick(e){ if(e.target===document.getElementById('modalOverlay')) closeModal() }
+function filterTable(q){
+  q = q.toLowerCase()
+  document.querySelectorAll('#sectionsTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none'
+  })
+}
+</script>
+</body>
+</html>

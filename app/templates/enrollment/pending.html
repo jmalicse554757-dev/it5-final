@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EnrollEase — Pending Applications</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0C447C;--navy2:#185FA5;--navy3:#042C53;
+  --blue-bg:#EBF3FB;--border:#E2E8F0;--bg:#F5F7FA;
+  --text:#1E293B;--muted:#64748B;--light:#94A3B8;
+  --green:#2E7D32;--green-bg:#E8F5E9;
+  --amber:#92600A;--amber-bg:#FFF8E1;
+  --red:#B91C1C;--red-bg:#FEF2F2;
+  --sidebar:240px;
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
+}
+body{display:flex;height:100vh;overflow:hidden;background:var(--bg)}
+.sidebar{width:var(--sidebar);min-width:var(--sidebar);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.logo-text{font-size:16px;font-weight:700;color:var(--navy3)}
+.logo-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.sidebar-nav{flex:1;padding:12px 10px}
+.nav-section-label{font-size:10px;font-weight:600;color:var(--light);letter-spacing:.08em;text-transform:uppercase;padding:10px 10px 4px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:.12s;margin-bottom:1px;border:none;background:transparent;width:100%;text-align:left;font-family:inherit;text-decoration:none}
+.nav-link:hover{background:var(--bg);color:var(--text)}
+.nav-link.active{background:var(--blue-bg);color:var(--navy);font-weight:600}
+.nav-badge{margin-left:auto;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;background:var(--amber-bg);color:var(--amber)}
+.sidebar-footer{padding:12px 14px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-bg);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.user-name{font-size:13px;font-weight:600}
+.user-role{font-size:11px;color:var(--muted)}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:700}
+.topbar-breadcrumb{font-size:12px;color:var(--muted)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:34px;border-radius:8px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:.12s;border:1px solid var(--border);background:#fff;color:var(--text);text-decoration:none}
+.btn:hover{background:var(--bg)}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary:hover{background:var(--navy2)}
+.btn.success{background:var(--green-bg);color:var(--green);border-color:var(--green-bg)}
+.btn.danger{background:var(--red-bg);color:var(--red);border-color:var(--red-bg)}
+.btn.sm{height:28px;padding:0 10px;font-size:11px}
+.page-content{flex:1;overflow-y:auto;padding:24px}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.summary-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--amber-bg)}
+.summary-bar span{font-size:13px;font-weight:600;color:var(--amber)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;background:var(--bg);border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:.1s}
+tbody tr:hover{background:var(--bg)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:12px 14px;font-size:13px;vertical-align:middle}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.stem{background:var(--green-bg);color:var(--green)}
+.badge.abm{background:var(--blue-bg);color:var(--navy)}
+.badge.humss{background:var(--amber-bg);color:var(--amber)}
+.badge.tvl{background:#FDF2F8;color:#9D174D}
+.badge.gas{background:#F0FDFA;color:#0F766E}
+.student-name{font-weight:600}
+.student-lrn{font-size:11px;color:var(--muted);margin-top:1px}
+.actions{display:flex;gap:6px;align-items:center}
+.empty-state{text-align:center;padding:48px;color:var(--muted)}
+.empty-state .big{font-size:32px;margin-bottom:8px}
+.empty-state p{font-size:13px}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.page-links{display:flex;gap:4px}
+.page-link{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text);text-decoration:none}
+.page-link.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:24px;width:400px}
+.modal-title{font-size:14px;font-weight:700;margin-bottom:8px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.modal textarea{width:100%;height:80px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:none}
+.modal textarea:focus{border-color:var(--navy2)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+</style>
+</head>
+<body>
+
+<!-- Reject Modal -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <div class="modal-title">Reject Application</div>
+    <div class="modal-sub" id="rejectStudentName">Provide a reason for rejection.</div>
+    <form method="POST" id="rejectForm">
+      <textarea name="remarks" placeholder="Reason for rejection (optional)..."></textarea>
+      <div class="modal-actions">
+        <button type="button" class="btn" onclick="closeRejectModal()">Cancel</button>
+        <button type="submit" class="btn danger">Confirm Reject</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">EnrollEase</div>
+    <div class="logo-sub">SHS Enrollment</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-link" href="/dashboard">Dashboard</a>
+    <div class="nav-section-label">Enrollment</div>
+    <a class="nav-link" href="/students/add">Add Student</a>
+    <a class="nav-link" href="/students">View Records</a>
+    <a class="nav-link" href="/students/search">Search Student</a>
+    <a class="nav-link active" href="/pending">Pending
+      <span class="nav-badge">{{ pending.total }}</span>
+    </a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-link" href="/assign">Assign Strand & Section</a>
+    <a class="nav-link" href="/reports">Generate Report</a>
+            {% if current_user.role in ['admin', 'staff'] %}
+            <a class="nav-link" href="/admin/users">Manage Users</a>
+            {% endif %}
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">{{ current_user.full_name[:2].upper() }}</div>
+      <div>
+        <div class="user-name">{{ current_user.full_name }}</div>
+        <div class="user-role">{{ current_user.role.title() }}</div>
+      </div>
+    </div>
+    <a class="nav-link" href="/logout" style="color:var(--red);margin-top:4px">Log Out</a>
+  </div>
+</aside>
+
+<main>
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Pending Applications</div>
+      <div class="topbar-breadcrumb">Enrollment / Pending</div>
+    </div>
+  </div>
+
+  <div class="page-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div style="padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:14px;background:{% if category=='success' %}var(--green-bg){% else %}var(--red-bg){% endif %};color:{% if category=='success' %}var(--green){% else %}var(--red){% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="card">
+      <div class="summary-bar">
+        <span>{{ pending.total }} application{{ 's' if pending.total != 1 }} waiting for review</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Strand</th>
+            <th>Section</th>
+            <th>Date Applied</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in pending.items %}
+          <tr>
+            <td>
+              <div class="student-name">{{ e.student.get_full_name() }}</div>
+              <div class="student-lrn">{{ e.student.lrn }}</div>
+            </td>
+            <td>
+              {% if e.strand %}
+              <span class="badge {{ e.strand.code|lower }}">{{ e.strand.code }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td>{{ e.section.name if e.section else '—' }}</td>
+            <td>{{ e.date_applied.strftime('%b %d, %Y') }}</td>
+            <td>
+              <div class="actions">
+                <form method="POST" action="/enrollment/{{ e.id }}/approve">
+                  <button type="submit" class="btn success sm">Approve</button>
+                </form>
+                <button type="button" class="btn danger sm"
+                  onclick="openRejectModal({{ e.id }}, '{{ e.student.get_full_name() }}')">
+                  Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">
+                <div class="big">--</div>
+                <p>No pending applications. All caught up!</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <div>Showing {{ pending.items|length }} of {{ pending.total }} pending</div>
+        <div class="page-links">
+          {% if pending.has_prev %}
+          <a class="page-link" href="?page={{ pending.prev_num }}">&#8592;</a>
+          {% endif %}
+          {% for page in pending.iter_pages() %}
+            {% if page %}
+            <a class="page-link {% if page == pending.page %}active{% endif %}" href="?page={{ page }}">{{ page }}</a>
+            {% endif %}
+          {% endfor %}
+          {% if pending.has_next %}
+          <a class="page-link" href="?page={{ pending.next_num }}">&#8594;</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+function openRejectModal(id, name) {
+  document.getElementById('rejectForm').action = '/enrollment/' + id + '/reject';
+  document.getElementById('rejectStudentName').textContent = 'Rejecting: ' + name;
+  document.getElementById('rejectModal').classList.add('open');
+}
+function closeRejectModal() {
+  document.getElementById('rejectModal').classList.remove('open');
+}
+</script>
+</body>
+</html>
+

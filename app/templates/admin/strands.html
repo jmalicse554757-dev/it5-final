@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EnrollEase — Manage Strands</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0C447C;--navy2:#185FA5;--navy3:#042C53;--navy4:#EBF3FB;
+  --border:#E2E8F0;--bg:#F5F7FA;--text:#1E293B;--muted:#64748B;
+  --red:#B91C1C;--red-bg:#FEF2F2;--green:#2E7D32;--green-bg:#E8F5E9;
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
+}
+body{min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
+.topbar{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.logo{font-size:15px;font-weight:700;color:var(--navy3)}
+.logo-sub{font-size:10px;color:var(--muted)}
+.topbar-nav{display:flex;align-items:center;gap:2px;margin-left:16px}
+.nav-link{padding:6px 12px;border-radius:6px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:.15s}
+.nav-link:hover{color:var(--navy);background:var(--navy4)}
+.nav-link.active{color:var(--navy);background:var(--navy4);font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--navy4);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.user-name{font-size:13px;font-weight:600}
+.btn-logout{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;text-decoration:none;font-family:inherit;transition:.15s}
+.btn-logout:hover{color:var(--red);border-color:#FECACA}
+.page{flex:1;padding:32px}
+.page-inner{max-width:900px;margin:0 auto}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:20px;font-weight:700;color:var(--navy3)}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:0 16px;height:38px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:.15s;border:none}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.primary:hover{background:var(--navy2)}
+.btn.danger{background:var(--red-bg);color:var(--red);border:1px solid #FECACA}
+.btn.danger:hover{background:#FEE2E2}
+.btn.success{background:var(--green-bg);color:var(--green);border:1px solid #C8E6C9}
+.btn.sm{height:32px;padding:0 12px;font-size:12px}
+.alert{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:20px}
+.alert.success{background:var(--green-bg);color:var(--green);border:1px solid #C8E6C9}
+.alert.error{background:var(--red-bg);color:var(--red);border:1px solid #FECACA}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal-title{font-size:17px;font-weight:700;color:var(--navy3);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-row label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.form-row input,.form-row textarea{padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:var(--text);transition:.15s;background:#fff}
+.form-row input{height:40px}
+.form-row textarea{resize:vertical;min-height:80px}
+.form-row input:focus,.form-row textarea:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.modal-btns .btn{flex:1;justify-content:center}
+.btn.outline{background:#fff;color:var(--navy);border:1.5px solid var(--border)}
+.btn.outline:hover{background:var(--bg)}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600;color:var(--navy3)}
+table{width:100%;border-collapse:collapse}
+th{padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:#FAFBFC}
+td{padding:13px 16px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFBFC}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.active{background:var(--green-bg);color:var(--green)}
+.badge.inactive{background:var(--red-bg);color:var(--red)}
+.empty{padding:48px;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div>
+      <div class="logo">EnrollEase</div>
+      <div class="logo-sub">SHS Enrollment System</div>
+    </div>
+    <nav class="topbar-nav">
+      <a class="nav-link" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/students">Students</a>
+      <a class="nav-link" href="/pending">Pending</a>
+      <a class="nav-link" href="/assign">Assign</a>
+      <a class="nav-link" href="/reports">Reports</a>
+      <a class="nav-link" href="/admin/users">Users</a>
+      <a class="nav-link active" href="/admin/strands">Strands</a>
+      <a class="nav-link" href="/admin/sections">Sections</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <div class="user-avatar">{{ current_user.full_name[:2].upper() }}</div>
+    <div class="user-name">{{ current_user.full_name }}</div>
+    <a class="btn-logout" href="/logout">Log Out</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-inner">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Manage Strands</div>
+        <div class="page-sub">Add and manage SHS academic strands.</div>
+      </div>
+      <button class="btn primary" onclick="openModal()">+ Add Strand</button>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Strands</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Code</th>
+            <th>Full Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for strand in strands %}
+          <tr>
+            <td style="color:var(--muted)">{{ loop.index }}</td>
+            <td><strong>{{ strand.code }}</strong></td>
+            <td>{{ strand.full_name }}</td>
+            <td style="color:var(--muted)">{{ strand.description or '—' }}</td>
+            <td>
+              {% if strand.is_active %}
+                <span class="badge active">Active</span>
+              {% else %}
+                <span class="badge inactive">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="POST" action="/admin/strands/{{ strand.id }}/toggle" style="display:inline">
+                <button class="btn sm {{ 'danger' if strand.is_active else 'success' }}">
+                  {{ 'Deactivate' if strand.is_active else 'Activate' }}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty">No strands found. Add one to get started.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ADD STRAND MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">Add New Strand</div>
+    <div class="modal-sub">Fill in the strand details below.</div>
+    <form method="POST" action="/admin/strands/create">
+      <div class="form-row">
+        <label>Strand Code * (e.g. STEM, ABM)</label>
+        <input type="text" name="code" placeholder="e.g. STEM" maxlength="10" required/>
+      </div>
+      <div class="form-row">
+        <label>Full Name *</label>
+        <input type="text" name="full_name" placeholder="e.g. Science, Technology, Engineering & Mathematics" required/>
+      </div>
+      <div class="form-row">
+        <label>Description</label>
+        <textarea name="description" placeholder="Optional short description..."></textarea>
+      </div>
+      <div class="modal-btns">
+        <button type="button" class="btn outline" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn primary">Add Strand</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal(){ document.getElementById('modalOverlay').classList.add('open') }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open') }
+function handleOverlayClick(e){ if(e.target===document.getElementById('modalOverlay')) closeModal() }
+</script>
+</body>
+</html>

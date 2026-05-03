@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EnrollEase — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0C447C;--navy2:#185FA5;--navy3:#042C53;
+  --blue-bg:#EBF3FB;--border:#E2E8F0;--bg:#F5F7FA;
+  --text:#1E293B;--muted:#64748B;--light:#94A3B8;
+  --green:#2E7D32;--green-bg:#E8F5E9;
+  --amber:#92600A;--amber-bg:#FFF8E1;
+  --red:#B91C1C;--red-bg:#FEF2F2;
+  --pink:#9D174D;--pink-bg:#FDF2F8;
+  --teal:#0F766E;--teal-bg:#F0FDFA;
+  --sidebar:240px;
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
+}
+body{display:flex;height:100vh;overflow:hidden;background:var(--bg)}
+.sidebar{width:var(--sidebar);min-width:var(--sidebar);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.logo-text{font-size:16px;font-weight:700;color:var(--navy3)}
+.logo-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.sidebar-nav{flex:1;padding:12px 10px}
+.nav-section-label{font-size:10px;font-weight:600;color:var(--light);letter-spacing:.08em;text-transform:uppercase;padding:10px 10px 4px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:.12s;margin-bottom:1px;border:none;background:transparent;width:100%;text-align:left;font-family:inherit;text-decoration:none}
+.nav-link:hover{background:var(--bg);color:var(--text)}
+.nav-link.active{background:var(--blue-bg);color:var(--navy);font-weight:600}
+.nav-badge{margin-left:auto;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;background:var(--amber-bg);color:var(--amber)}
+.nav-badge.blue{background:var(--blue-bg);color:var(--navy)}
+.sidebar-footer{padding:12px 14px;border-top:1px solid var(--border)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-bg);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.user-card{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-role{font-size:11px;color:var(--muted)}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:700}
+.topbar-breadcrumb{font-size:12px;color:var(--muted)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:34px;border-radius:8px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:.12s;border:1px solid var(--border);background:#fff;color:var(--text);text-decoration:none}
+.btn:hover{background:var(--bg)}
+.btn.danger{background:var(--red-bg);color:var(--red);border-color:var(--red-bg)}
+.page-content{flex:1;overflow-y:auto;padding:24px}
+.greeting{background:var(--navy);border-radius:12px;padding:22px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.greeting h2{font-size:17px;font-weight:700;margin-bottom:4px}
+.greeting p{font-size:12px;opacity:.7}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px}
+.stat-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.stat-val{font-size:26px;font-weight:700;line-height:1}
+.stat-note{font-size:11px;color:var(--muted);margin-top:6px}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-size:13px;font-weight:700}
+.prog-row{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px}
+.prog-meta span:first-child{color:var(--muted)}
+.prog-meta span:last-child{font-weight:700}
+.prog-bg{height:6px;background:var(--border);border-radius:10px;overflow:hidden}
+.prog-fill{height:100%;border-radius:10px;background:var(--navy)}
+.recent-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recent-row:last-child{border-bottom:none}
+.r-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;background:var(--blue-bg);color:var(--navy)}
+.r-name{font-size:13px;font-weight:600}
+.r-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.r-time{margin-left:auto;font-size:11px;color:var(--light)}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.stem{background:var(--green-bg);color:var(--green)}
+.badge.abm{background:var(--blue-bg);color:var(--navy)}
+.badge.humss{background:var(--amber-bg);color:var(--amber)}
+.badge.tvl{background:var(--pink-bg);color:var(--pink)}
+.badge.gas{background:var(--teal-bg);color:var(--teal)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">EnrollEase</div>
+    <div class="logo-sub">SHS Enrollment</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-link active" href="/dashboard">Dashboard</a>
+
+    <div class="nav-section-label">Enrollment</div>
+    <a class="nav-link" href="/students/add">Add Student</a>
+    <a class="nav-link" href="/students">View Records</a>
+    <a class="nav-link" href="/students/search">Search Student</a>
+    <a class="nav-link" href="/pending">Pending
+      <span class="nav-badge">{{ total_pending }}</span>
+    </a>
+
+    <div class="nav-section-label">Management</div>
+    <a class="nav-link" href="/assign">Assign Strand & Section</a>
+    <a class="nav-link" href="/reports">Generate Report</a>
+            {% if current_user.role in ['admin', 'staff'] %}
+            <a class="nav-link" href="/admin/users">Manage Users</a>
+            {% endif %}
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">{{ current_user.full_name[:2].upper() }}</div>
+      <div>
+        <div class="user-name">{{ current_user.full_name }}</div>
+        <div class="user-role">{{ current_user.role.title() }}</div>
+      </div>
+    </div>
+    <a class="nav-link" href="/logout" style="color:var(--red);margin-top:4px">Log Out</a>
+  </div>
+</aside>
+
+<main>
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-breadcrumb">S.Y. 2024–2025 — Senior High School</div>
+    </div>
+    <div class="topbar-right">
+      <a class="btn danger" href="/logout">Log Out</a>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div class="greeting">
+      <div>
+        <h2>Welcome, {{ current_user.full_name }}!</h2>
+        <p>Here is your enrollment overview.</p>
+      </div>
+      <div style="font-size:40px">🏫</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Enrolled</div>
+        <div class="stat-val">{{ total_enrolled }}</div>
+        <div class="stat-note">All strands</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending</div>
+        <div class="stat-val" style="color:var(--amber)">{{ total_pending }}</div>
+        <div class="stat-note">Awaiting approval</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Sections</div>
+        <div class="stat-val">{{ total_sections }}</div>
+        <div class="stat-note">Across all strands</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Slots Remaining</div>
+        <div class="stat-val" style="color:var(--red)">{{ slots_remaining }}</div>
+        <div class="stat-note">Available slots</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:16px">
+      <div class="card">
+        <div class="sec-head"><div class="sec-title">Enrollment by Strand</div></div>
+        {% for strand in strand_data %}
+        <div class="prog-row">
+          <div class="prog-meta">
+            <span>{{ strand.code }}</span>
+            <span>{{ strand.count }}</span>
+          </div>
+          <div class="prog-bg">
+            <div class="prog-fill" style="width:{{ [strand.count, 1]|max }}%"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="card">
+        <div class="sec-head">
+          <div class="sec-title">Recent Enrollments</div>
+          <a class="btn" href="/students" style="font-size:11px;height:28px;padding:0 10px">View all</a>
+        </div>
+        {% for e in recent %}
+        <div class="recent-row">
+          <div class="r-avatar">{{ e.student.first_name[0] }}{{ e.student.last_name[0] }}</div>
+          <div>
+            <div class="r-name">{{ e.student.get_full_name() }}</div>
+            <div class="r-sub">
+              <span class="badge {{ e.strand.code|lower }}">{{ e.strand.code }}</span>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px">No recent enrollments</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>
+
+

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EnrollEase — Log In</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0C447C;--navy2:#185FA5;--navy3:#042C53;--navy4:#EBF3FB;
+  --border:#E2E8F0;--bg:#F5F7FA;--text:#1E293B;--muted:#64748B;
+  --red:#B91C1C;--red-bg:#FEF2F2;
+  --green:#2E7D32;--green-bg:#E8F5E9;
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
+}
+*{box-sizing:border-box}
+body{
+  min-height:100vh;
+  display:flex;
+  background:linear-gradient(160deg,var(--navy3) 0%,var(--navy) 60%,var(--navy2) 100%);
+}
+.left{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:64px;
+  color:#fff;
+}
+.left-logo{display:flex;align-items:center;gap:12px;margin-bottom:48px}
+.left-logo-icon{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.left-logo-icon svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2}
+.left-logo-text{font-size:18px;font-weight:700}
+.left-logo-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px}
+.left-title{font-size:42px;font-weight:800;line-height:1.15;margin-bottom:16px;letter-spacing:-.5px}
+.left-title span{color:#93C5FD}
+.left-sub{font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7;max-width:400px;margin-bottom:48px}
+.left-features{display:flex;flex-direction:column;gap:14px}
+.left-feat{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.75)}
+.left-feat-dot{width:8px;height:8px;border-radius:50%;background:#93C5FD;flex-shrink:0}
+.right{
+  width:480px;
+  min-width:480px;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:64px 48px;
+}
+.form-header{margin-bottom:32px}
+.form-title{font-size:24px;font-weight:800;color:var(--navy3);margin-bottom:6px}
+.form-sub{font-size:13px;color:var(--muted)}
+.alert{padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:20px}
+.alert.error{background:var(--red-bg);color:var(--red);border:1px solid #FECACA}
+.alert.success{background:var(--green-bg);color:var(--green);border:1px solid #C8E6C9}
+.form-row{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.form-row label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.form-row input{height:44px;padding:0 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;color:var(--text);transition:.15s}
+.form-row input:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.btn{width:100%;height:46px;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;border:none;background:var(--navy);color:#fff;margin-top:8px;transition:.15s}
+.btn:hover{background:var(--navy2)}
+.divider{display:flex;align-items:center;gap:12px;margin:24px 0;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.signup-link{text-align:center;font-size:13px;color:var(--muted)}
+.signup-link a{color:var(--navy);font-weight:700;text-decoration:none}
+.signup-link a:hover{text-decoration:underline}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;margin-top:auto;padding-top:32px;transition:.15s}
+.back-link:hover{color:#fff}
+.footer-note{margin-top:32px;font-size:11px;color:var(--muted);text-align:center}
+@media(max-width:900px){
+  body{flex-direction:column}
+  .left{padding:40px 24px;min-height:auto}
+  .left-title{font-size:28px}
+  .right{width:100%;min-width:0;padding:40px 24px}
+}
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div class="left-logo">
+    <div class="left-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    </div>
+    <div>
+      <div class="left-logo-text">EnrollEase</div>
+      <div class="left-logo-sub">SHS Enrollment System</div>
+    </div>
+  </div>
+
+  <h1 class="left-title">Welcome<br/>back to<br/><span>EnrollEase</span></h1>
+  <p class="left-sub">The official enrollment management system of Davao City National High School.</p>
+
+  <div class="left-features">
+    <div class="left-feat"><span class="left-feat-dot"></span>Manage student enrollment records</div>
+    <div class="left-feat"><span class="left-feat-dot"></span>Approve and track applications</div>
+    <div class="left-feat"><span class="left-feat-dot"></span>Assign strands and sections</div>
+    <div class="left-feat"><span class="left-feat-dot"></span>Generate reports and export data</div>
+  </div>
+
+  <a class="back-link" href="/">← Back to Home</a>
+</div>
+
+<div class="right">
+  <div class="form-header">
+    <div class="form-title">Sign in</div>
+    <div class="form-sub">Enter your credentials to access your account.</div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" action="/login">
+    <div class="form-row">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Enter your username" required autofocus/>
+    </div>
+    <div class="form-row">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter your password" required/>
+    </div>
+    <button type="submit" class="btn">Sign In</button>
+  </form>
+
+  <div class="divider">or</div>
+
+  <div class="signup-link">
+    Don't have an account? <a href="/signup">Create one here</a>
+  </div>
+
+  <div class="footer-note">
+    Davao City National High School · S.Y. 2024–2025
+  </div>
+</div>
+
+</body>
+</html>
