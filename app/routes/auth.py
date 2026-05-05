@@ -41,8 +41,6 @@ def logout():
     flash('You have been logged out.', 'success')
     return redirect(url_for('auth.login'))
 
-# ---- SIGNUP ROUTE GOES HERE ----
-
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
@@ -55,13 +53,18 @@ def signup():
         from app.models.user import User
         from app.models.student import Student
 
-        full_name = request.form.get('full_name', '').strip()
-        username  = request.form.get('username', '').strip()
-        password  = request.form.get('password', '')
-        confirm   = request.form.get('confirm_password', '')
-        lrn       = request.form.get('lrn', '').strip()
+        full_name        = request.form.get('full_name', '').strip()
+        username         = request.form.get('username', '').strip()
+        password         = request.form.get('password', '')
+        confirm          = request.form.get('confirm_password', '')
+        lrn              = request.form.get('lrn', '').strip()
+        first_name       = request.form.get('first_name', '').strip()
+        last_name        = request.form.get('last_name', '').strip()
+        middle_name      = request.form.get('middle_name', '').strip()
+        contact_number   = request.form.get('contact_number', '').strip()
 
-        if not full_name or not username or not password or not lrn:
+        # Basic validation
+        if not all([full_name, username, password, lrn, first_name, last_name]):
             flash('Please fill in all required fields.', 'error')
             return render_template('auth/signup.html')
 
@@ -73,31 +76,40 @@ def signup():
             flash('Password must be at least 6 characters.', 'error')
             return render_template('auth/signup.html')
 
+        if len(lrn) != 12 or not lrn.isdigit():
+            flash('LRN must be exactly 12 digits.', 'error')
+            return render_template('auth/signup.html')
+
         if User.query.filter_by(username=username).first():
             flash('That username is already taken.', 'error')
             return render_template('auth/signup.html')
 
-        student = Student.query.filter_by(lrn=lrn).first()
-        if not student:
-            flash('No student record found with that LRN. Please contact the registrar.', 'error')
+        if Student.query.filter_by(lrn=lrn).first():
+            flash('An account with that LRN already exists.', 'error')
             return render_template('auth/signup.html')
 
-        if student.user_id:
-            flash('An account is already linked to that LRN.', 'error')
-            return render_template('auth/signup.html')
-
+        # Create user account
         hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
         new_user = User(
-            full_name=full_name,
-            username=username,
-            password_hash=hashed_pw,
-            role='student',
-            is_active=True
-        )
+        full_name=full_name,
+        username=username,
+        password_hash=hashed_pw,
+        role='student',
+        active=True  
+)
         db.session.add(new_user)
         db.session.flush()
 
-        student.user_id = new_user.id
+        # Auto-create student record
+        new_student = Student(
+            lrn=lrn,
+            first_name=first_name,
+            last_name=last_name,
+            middle_name=middle_name or None,
+            contact_number=contact_number or None,
+            user_id=new_user.id
+        )
+        db.session.add(new_student)
         db.session.commit()
 
         flash('Account created successfully! You can now log in.', 'success')

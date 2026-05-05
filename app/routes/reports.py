@@ -8,6 +8,21 @@ import io
 
 reports = Blueprint('reports', __name__)
 
+def build_query(selected_strand, selected_status, selected_grade):
+    query = Enrollment.query
+
+    if selected_strand:
+        query = query.filter(Enrollment.strand_id == int(selected_strand))
+    if selected_status:
+        query = query.filter(Enrollment.status == selected_status)
+    if selected_grade:
+        section_ids = [
+            s.id for s in Section.query.filter_by(grade_level=selected_grade).all()
+        ]
+        query = query.filter(Enrollment.section_id.in_(section_ids))
+
+    return query
+
 @reports.route('/reports')
 @login_required
 def index():
@@ -17,16 +32,7 @@ def index():
     selected_status = request.args.get('status', '')
     selected_grade  = request.args.get('grade', '')
 
-    query = Enrollment.query
-
-    if selected_strand:
-        query = query.filter_by(strand_id=selected_strand)
-    if selected_status:
-        query = query.filter_by(status=selected_status)
-    if selected_grade:
-        query = query.join(Section).filter(Section.grade_level == selected_grade)
-
-    results = query.all()
+    results = build_query(selected_strand, selected_status, selected_grade).all()
 
     total          = len(results)
     count_enrolled = sum(1 for e in results if e.status == 'enrolled')
@@ -52,16 +58,7 @@ def export_csv():
     selected_status = request.args.get('status', '')
     selected_grade  = request.args.get('grade', '')
 
-    query = Enrollment.query
-
-    if selected_strand:
-        query = query.filter_by(strand_id=selected_strand)
-    if selected_status:
-        query = query.filter_by(status=selected_status)
-    if selected_grade:
-        query = query.join(Section).filter(Section.grade_level == selected_grade)
-
-    results = query.all()
+    results = build_query(selected_strand, selected_status, selected_grade).all()
 
     output = io.StringIO()
     writer = csv.writer(output)

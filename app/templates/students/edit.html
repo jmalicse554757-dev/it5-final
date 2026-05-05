@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Edit Student{% endblock %}
+{% block page_title %}Edit Student{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-sm" href="/students" style="background:var(--bg);border:1px solid var(--border);color:var(--text)">
+  <i class="bi bi-arrow-left"></i> Back to Records
+</a>
+{% endblock %}
+
+{% block content %}
+<form method="POST" action="/students/{{ student.id }}/edit">
+
+  <!-- PERSONAL INFO -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div class="card-title"><i class="bi bi-person-fill"></i> Personal Information</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;margin-bottom:12px">
+      <div class="form-group">
+        <label class="form-label">Last Name *</label>
+        <input class="form-control" type="text" name="last_name" value="{{ student.last_name }}" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">First Name *</label>
+        <input class="form-control" type="text" name="first_name" value="{{ student.first_name }}" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Middle Name</label>
+        <input class="form-control" type="text" name="middle_name" value="{{ student.middle_name or '' }}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Suffix</label>
+        <select class="form-control" name="suffix" style="width:90px">
+          <option value="">—</option>
+          {% for s in ['Jr.','Sr.','II','III','IV'] %}
+          <option value="{{ s }}" {% if student.suffix == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="form-group">
+        <label class="form-label">LRN</label>
+        <input class="form-control" type="text" value="{{ student.lrn }}" disabled
+          style="background:var(--bg);color:var(--muted)"/>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">LRN cannot be changed</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date of Birth</label>
+        <input class="form-control" type="date" name="date_of_birth"
+          value="{{ student.date_of_birth.strftime('%Y-%m-%d') if student.date_of_birth else '' }}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sex</label>
+        <select class="form-control" name="sex">
+          <option value="">Select</option>
+          <option value="Male"   {% if student.sex == 'Male' %}selected{% endif %}>Male</option>
+          <option value="Female" {% if student.sex == 'Female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Contact Number</label>
+        <input class="form-control" type="text" name="contact_number" value="{{ student.contact_number or '' }}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-control" type="email" name="email" value="{{ student.email or '' }}"/>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Address</label>
+      <input class="form-control" type="text" name="address" value="{{ student.address or '' }}"/>
+    </div>
+  </div>
+
+  <!-- GUARDIAN INFO -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div class="card-title"><i class="bi bi-people-fill"></i> Guardian Information</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="form-group">
+        <label class="form-label">Guardian Name</label>
+        <input class="form-control" type="text" name="guardian_name" value="{{ student.guardian_name or '' }}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Relationship</label>
+        <input class="form-control" type="text" name="guardian_relationship" value="{{ student.guardian_relationship or '' }}"/>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Guardian Contact</label>
+        <input class="form-control" type="text" name="guardian_contact" value="{{ student.guardian_contact or '' }}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Guardian Occupation</label>
+        <input class="form-control" type="text" name="guardian_occupation" value="{{ student.guardian_occupation or '' }}"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENROLLMENT INFO -->
+  {% if enrollment %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div class="card-title"><i class="bi bi-mortarboard-fill"></i> Enrollment Details</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Strand</label>
+        <select class="form-control" name="strand_id" id="edit_strand" onchange="filterEditSections()">
+          <option value="">Select Strand</option>
+          {% for strand in strands %}
+          <option value="{{ strand.id }}"
+            {% if enrollment.strand_id == strand.id %}selected{% endif %}>
+            {{ strand.code }} — {{ strand.full_name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Grade Level</label>
+        <select class="form-control" id="edit_grade" onchange="filterEditSections()">
+          <option value="">Select Grade</option>
+          <option value="11" {% if enrollment.section and enrollment.section.grade_level == '11' %}selected{% endif %}>Grade 11</option>
+          <option value="12" {% if enrollment.section and enrollment.section.grade_level == '12' %}selected{% endif %}>Grade 12</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Section</label>
+        <select class="form-control" name="section_id" id="edit_section">
+          <option value="">Select section</option>
+          {% for section in sections %}
+          <option value="{{ section.id }}"
+            data-strand="{{ section.strand_id }}"
+            data-grade="{{ section.grade_level }}"
+            {% if enrollment.section_id == section.id %}selected{% endif %}>
+            {{ section.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;padding:10px 14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted)">
+      <i class="bi bi-info-circle"></i>
+      Current status: <strong style="color:var(--text)">{{ enrollment.status|title }}</strong> —
+      Change strand/section here but use the <strong>Pending</strong> page to approve/reject.
+    </div>
+  </div>
+  {% endif %}
+
+  <div style="display:flex;gap:10px">
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-check-lg"></i> Save Changes
+    </button>
+    <a href="/students" class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);height:40px;display:inline-flex;align-items:center;gap:6px;padding:0 16px;border-radius:9px;text-decoration:none;font-size:13px;font-weight:700">
+      <i class="bi bi-x-lg"></i> Cancel
+    </a>
+  </div>
+
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Filter sections by strand + grade on the edit page
+function filterEditSections() {
+  const strand = document.getElementById('edit_strand').value;
+  const grade  = document.getElementById('edit_grade').value;
+  const sel    = document.getElementById('edit_section');
+  const opts   = sel.querySelectorAll('option');
+
+  opts.forEach(opt => {
+    if (!opt.value) return; // keep placeholder
+    const match = opt.dataset.strand == strand && opt.dataset.grade == grade;
+    opt.style.display = match ? '' : 'none';
+    if (!match && opt.selected) {
+      opt.selected = false;
+      sel.value = '';
+    }
+  });
+}
+
+// Run on page load so current selection is visible
+document.addEventListener('DOMContentLoaded', filterEditSections);
+</script>
+{% endblock %}

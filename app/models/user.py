@@ -17,6 +17,10 @@ class User(db.Model, UserMixin):
     def is_active(self):
         return self.active
 
+    @is_active.setter
+    def is_active(self, value):
+        self.active = value
+
     def __repr__(self):
         return f'<User {self.username}>'
 

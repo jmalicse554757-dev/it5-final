@@ -43,9 +43,14 @@ def reject(id):
 def assign():
     from app.models.strand import Strand
     from app.models.section import Section
+    from app.models.enrollment import Enrollment
+
     strands = Strand.query.filter_by(is_active=True).all()
     sections = Section.query.filter_by(is_active=True).all()
+    enrollments = Enrollment.query.all()
+
     return render_template('enrollment/assign.html',
         strands=strands,
-        sections=sections
+        sections=sections,
+        enrollments=enrollments
     )

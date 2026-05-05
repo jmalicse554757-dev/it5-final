@@ -17,6 +17,8 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated
 
+# ---- USERS ----
+
 @admin.route('/admin/users')
 @login_required
 @admin_required
@@ -54,11 +56,11 @@ def create_user():
 
     hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
     new_user = User(
-        full_name=full_name,
+    full_name=full_name,
         username=username,
         password_hash=hashed_pw,
         role=role,
-        is_active=True
+        active=True  
     )
     db.session.add(new_user)
     db.session.commit()
@@ -82,10 +84,10 @@ def toggle_user(user_id):
         flash('You cannot deactivate your own account.', 'error')
         return redirect(url_for('admin_bp.users'))
 
-    user.active = not user.active
+    user.is_active = not user.is_active
     db.session.commit()
 
-    status = 'activated' if user.active else 'deactivated'
+    status = 'activated' if user.is_active else 'deactivated'
     flash(f'{user.full_name} has been {status}.', 'success')
     return redirect(url_for('admin_bp.users'))
 
@@ -106,8 +108,8 @@ def create_strand():
     from app import db
     from app.models.strand import Strand
 
-    code      = request.form.get('code', '').strip().upper()
-    full_name = request.form.get('full_name', '').strip()
+    code        = request.form.get('code', '').strip().upper()
+    full_name   = request.form.get('full_name', '').strip()
     description = request.form.get('description', '').strip()
 
     if not code or not full_name:
@@ -162,6 +164,7 @@ def create_section():
     name        = request.form.get('name', '').strip()
     strand_id   = request.form.get('strand_id', '')
     grade_level = request.form.get('grade_level', '')
+    school_year = request.form.get('school_year', '2024-2025')
     capacity    = request.form.get('capacity', 40)
 
     if not name or not strand_id or not grade_level:
@@ -171,8 +174,10 @@ def create_section():
     section = Section(
         name=name,
         strand_id=int(strand_id),
-        grade_level=int(grade_level),
-        capacity=int(capacity)
+        grade_level=grade_level,
+        school_year=school_year,
+        max_capacity=int(capacity),
+        is_active=True
     )
     db.session.add(section)
     db.session.commit()

@@ -4,176 +4,283 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>EnrollEase — SHS Enrollment System</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --navy:#0C447C;--navy2:#185FA5;--navy3:#042C53;
-  --blue-light:#EBF3FB;--border:#E2E8F0;
-  --bg:#F5F7FA;--text:#1E293B;--muted:#64748B;
-  font-family:'DM Sans',sans-serif;color:var(--text);
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy:     #021A33;
+  --navy-mid: #042C53;
+  --navy-top: #0C447C;
+  --blue:     #185FA5;
+  --teal:     #0EA5C8;
+  --teal2:    #5DD6EC;
+  --white:    #ffffff;
+  --muted:    rgba(255,255,255,0.45);
+  --border:   rgba(255,255,255,0.08);
 }
-html{scroll-behavior:smooth}
+html { scroll-behavior: smooth; }
+body { font-family: Arial, sans-serif; background: var(--navy); color: var(--white); overflow-x: hidden; }
 
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  height:64px;background:#042C53;
-  border-bottom:1px solid rgba(255,255,255,0.07);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 72px;
+.grid-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
-.nav-logo{display:flex;align-items:center;gap:12px}
-.nav-logo-icon{width:34px;height:34px;background:rgba(255,255,255,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center}
-.nav-logo-icon svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2}
-.nav-logo-text{font-size:15px;font-weight:700;color:#fff}
-.nav-logo-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px}
-.nav-links{display:flex;align-items:center;gap:4px}
-.nav-link{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;transition:.15s}
-.nav-link:hover{color:#fff;background:rgba(255,255,255,0.07)}
-.nav-btn{padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;transition:.15s;font-family:inherit;cursor:pointer;border:none}
-.nav-btn.outline{background:transparent;color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.2);margin-right:6px}
-.nav-btn.outline:hover{background:rgba(255,255,255,0.08);color:#fff}
-.nav-btn.solid{background:#185FA5;color:#fff}
-.nav-btn.solid:hover{background:#1a6bb5}
+.blob1 {
+  position: fixed; top: -10%; left: -5%;
+  width: 550px; height: 550px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(14,165,200,0.09) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.blob2 {
+  position: fixed; bottom: -15%; right: -5%;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(24,95,165,0.11) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
 
-.hero{
-  min-height:100vh;
-  background:#042C53;
-  display:flex;align-items:center;justify-content:center;
-  padding:120px 72px 80px;
-  text-align:center;
-  border-bottom:1px solid rgba(255,255,255,0.06);
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 62px;
+  background: rgba(2,26,51,0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 72px;
 }
-.hero-inner{max-width:760px}
-.hero-badge{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:100px;padding:5px 16px;
-  font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);
-  margin-bottom:28px;letter-spacing:.02em;
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  border-radius: 9px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--white);
+  box-shadow: 0 4px 10px rgba(14,165,200,0.28);
 }
-.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:#4ADE80}
-.hero-title{font-size:52px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:18px;letter-spacing:-1px}
-.hero-title span{color:#93C5FD}
-.hero-sub{font-size:16px;color:rgba(255,255,255,0.55);line-height:1.8;max-width:520px;margin:0 auto 36px}
-.hero-btns{display:flex;gap:12px;justify-content:center}
-.hero-btn{padding:13px 30px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:.15s;font-family:inherit;border:none;cursor:pointer}
-.hero-btn.primary{background:#fff;color:#042C53}
-.hero-btn.primary:hover{background:#EBF3FB}
-.hero-btn.ghost{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.15)}
-.hero-btn.ghost:hover{background:rgba(255,255,255,0.13);color:#fff}
+.nav-logo-text { font-size: 15px; font-weight: 700; color: var(--white); }
+.nav-logo-text span { color: var(--teal2); }
+.nav-logo-sub { font-size: 10px; color: rgba(255,255,255,0.32); margin-top: 1px; }
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-link {
+  padding: 7px 14px; border-radius: 7px; font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.55); text-decoration: none; transition: .15s;
+}
+.nav-link:hover { color: var(--white); background: rgba(255,255,255,0.07); }
+.nav-btn {
+  padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  text-decoration: none; transition: .15s; font-family: Arial, sans-serif; cursor: pointer; border: none;
+}
+.nav-btn.outline {
+  background: transparent; color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.15); margin-right: 6px;
+}
+.nav-btn.outline:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+.nav-btn.solid {
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  color: var(--white); box-shadow: 0 4px 12px rgba(14,165,200,0.25);
+}
+.nav-btn.solid:hover { opacity: .9; }
 
-.stats-band{
-  background:#0C447C;
-  padding:0 72px;
-  display:grid;grid-template-columns:repeat(4,1fr);
-  border-bottom:1px solid rgba(255,255,255,0.06);
+/* HERO */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 120px 72px 80px; text-align: center;
+  border-bottom: 1px solid var(--border);
 }
-.stat-item{
-  padding:32px 24px;text-align:center;
-  border-right:1px solid rgba(255,255,255,0.06);
+.hero-inner { max-width: 760px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(14,165,200,0.1);
+  border: 1px solid rgba(14,165,200,0.22);
+  border-radius: 100px; padding: 6px 18px;
+  font-size: 12px; font-weight: 700; color: var(--teal2);
+  margin-bottom: 28px;
 }
-.stat-item:last-child{border-right:none}
-.stat-val{font-size:28px;font-weight:700;color:#fff;margin-bottom:4px}
-.stat-label{font-size:12px;color:rgba(255,255,255,0.45);font-weight:500}
+.hero-badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ADE80; box-shadow: 0 0 5px #4ADE80;
+}
+.hero-title { font-size: 52px; font-weight: 700; color: var(--white); line-height: 1.1; margin-bottom: 18px; }
+.hero-title span { color: var(--teal2); }
+.hero-sub { font-size: 15px; color: var(--muted); line-height: 1.85; max-width: 500px; margin: 0 auto 36px; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; }
+.hero-btn {
+  padding: 13px 30px; border-radius: 9px; font-size: 14px; font-weight: 700;
+  text-decoration: none; transition: .2s; font-family: Arial, sans-serif; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.hero-btn.primary {
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  color: var(--white); box-shadow: 0 4px 18px rgba(14,165,200,0.3);
+}
+.hero-btn.primary:hover { opacity: .9; transform: translateY(-2px); }
+.hero-btn.ghost {
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.hero-btn.ghost:hover { background: rgba(255,255,255,0.1); color: var(--white); }
 
-.section{padding:88px 72px;background:#fff}
-.section.gray{background:#F8FAFB}
-.sec-label{font-size:11px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.sec-title{font-size:32px;font-weight:700;color:#042C53;line-height:1.2;margin-bottom:12px;letter-spacing:-.3px}
-.sec-sub{font-size:14px;color:var(--muted);line-height:1.75;max-width:480px}
+/* STATS */
+.stats-band {
+  position: relative; z-index: 1;
+  background: rgba(12,68,124,0.25);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 72px;
+  display: grid; grid-template-columns: repeat(4,1fr);
+}
+.stat-item {
+  padding: 30px 24px; text-align: center;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-val { font-size: 28px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.stat-label { font-size: 12px; color: var(--muted); }
 
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
-.feat-card{
-  border:1px solid var(--border);border-radius:12px;
-  padding:24px;background:#fff;transition:.2s;
+/* SECTIONS */
+.section { position: relative; z-index: 1; padding: 84px 72px; }
+.section.alt { background: rgba(255,255,255,0.02); }
+.sec-inner { max-width: 1100px; margin: 0 auto; }
+.sec-label {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  color: var(--teal); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px;
 }
-.feat-card:hover{border-color:#B5D4F4;box-shadow:0 4px 24px rgba(12,68,124,0.07)}
-.feat-icon{
-  width:42px;height:42px;border-radius:10px;
-  background:#EBF3FB;display:flex;
-  align-items:center;justify-content:center;margin-bottom:16px;
-}
-.feat-icon svg{width:20px;height:20px;stroke:#0C447C;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.feat-title{font-size:14px;font-weight:600;color:#042C53;margin-bottom:7px}
-.feat-desc{font-size:13px;color:var(--muted);line-height:1.65}
+.sec-title { font-size: 32px; font-weight: 700; color: var(--white); line-height: 1.15; margin-bottom: 12px; }
+.sec-sub { font-size: 14px; color: var(--muted); line-height: 1.8; max-width: 480px; }
 
-.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
-.step-card{
-  background:#fff;border:1px solid var(--border);
-  border-radius:12px;padding:24px;text-align:center;
-  position:relative;
+/* FEATURES */
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 44px; }
+.feat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px; transition: .25s;
 }
-.step-num{
-  width:44px;height:44px;border-radius:50%;
-  background:#EBF3FB;border:2px solid #B5D4F4;
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;font-weight:700;color:#0C447C;
-  margin:0 auto 16px;
+.feat-card:hover {
+  border-color: rgba(14,165,200,0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(2,26,51,0.4);
 }
-.step-title{font-size:13px;font-weight:600;color:#042C53;margin-bottom:7px}
-.step-desc{font-size:12px;color:var(--muted);line-height:1.65}
+.feat-icon {
+  width: 42px; height: 42px; border-radius: 10px;
+  background: rgba(14,165,200,0.1);
+  border: 1px solid rgba(14,165,200,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--teal2); margin-bottom: 16px;
+}
+.feat-title { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.feat-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
 
-.strands-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:48px}
-.strand-card{
-  border:1px solid var(--border);border-radius:12px;
-  padding:22px 14px;text-align:center;background:#fff;
-  transition:.2s;
+/* STEPS */
+.steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-top: 44px; }
+.step-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px; text-align: center; transition: .2s;
 }
-.strand-card:hover{border-color:#185FA5;box-shadow:0 4px 20px rgba(12,68,124,0.08);transform:translateY(-2px)}
-.strand-icon{
-  width:44px;height:44px;border-radius:10px;
-  margin:0 auto 12px;display:flex;
-  align-items:center;justify-content:center;font-size:20px;
+.step-card:hover { border-color: rgba(14,165,200,0.25); transform: translateY(-2px); }
+.step-num {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: var(--white);
+  margin: 0 auto 14px;
+  box-shadow: 0 4px 12px rgba(14,165,200,0.28);
 }
-.strand-code{font-size:15px;font-weight:700;color:#042C53;margin-bottom:4px}
-.strand-name{font-size:11px;color:var(--muted);line-height:1.4}
+.step-title { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.step-desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
 
-.cta-section{
-  background:#042C53;
-  padding:88px 72px;text-align:center;
+/* STRANDS */
+.strands-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; margin-top: 44px; }
+.strand-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px 14px; text-align: center; transition: .25s;
 }
-.cta-title{font-size:36px;font-weight:700;color:#fff;margin-bottom:14px;letter-spacing:-.3px}
-.cta-sub{font-size:15px;color:rgba(255,255,255,0.55);line-height:1.75;max-width:480px;margin:0 auto 36px}
-.cta-btns{display:flex;gap:12px;justify-content:center}
-.cta-btn{padding:13px 30px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:.15s;font-family:inherit;border:none;cursor:pointer}
-.cta-btn.white{background:#fff;color:#042C53}
-.cta-btn.white:hover{background:#EBF3FB}
-.cta-btn.outline{background:transparent;color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.2)}
-.cta-btn.outline:hover{background:rgba(255,255,255,0.08);color:#fff}
+.strand-card:hover {
+  border-color: rgba(14,165,200,0.3);
+  background: rgba(14,165,200,0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(2,26,51,0.4);
+}
+.strand-icon {
+  width: 46px; height: 46px; border-radius: 11px;
+  margin: 0 auto 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--teal2);
+}
+.strand-code { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+.strand-name { font-size: 11px; color: var(--muted); line-height: 1.5; }
 
-footer{
-  background:#021d36;
-  padding:32px 72px;
-  display:flex;align-items:center;justify-content:space-between;
-  border-top:1px solid rgba(255,255,255,0.05);
+/* CTA */
+.cta-section {
+  position: relative; z-index: 1;
+  padding: 84px 72px; text-align: center;
+  background: rgba(12,68,124,0.18);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
-.footer-logo{font-size:14px;font-weight:600;color:#fff}
-.footer-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:3px}
-.footer-copy{font-size:12px;color:rgba(255,255,255,0.3)}
+.cta-label { font-size: 11px; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; }
+.cta-title { font-size: 36px; font-weight: 700; color: var(--white); margin-bottom: 12px; }
+.cta-sub { font-size: 14px; color: var(--muted); line-height: 1.8; max-width: 460px; margin: 0 auto 32px; }
+.cta-btns { display: flex; gap: 12px; justify-content: center; }
+.cta-btn {
+  padding: 13px 30px; border-radius: 9px; font-size: 14px; font-weight: 700;
+  text-decoration: none; transition: .2s; font-family: Arial, sans-serif; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.cta-btn.solid {
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  color: var(--white); box-shadow: 0 4px 18px rgba(14,165,200,0.28);
+}
+.cta-btn.solid:hover { opacity: .9; transform: translateY(-2px); }
+.cta-btn.outline {
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.cta-btn.outline:hover { background: rgba(255,255,255,0.1); color: var(--white); }
+
+/* FOOTER */
+footer {
+  position: relative; z-index: 1;
+  background: rgba(2,26,51,0.92);
+  padding: 28px 72px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--border);
+}
+.footer-logo { font-size: 14px; font-weight: 700; color: var(--white); }
+.footer-logo span { color: var(--teal2); }
+.footer-sub { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 3px; }
+.footer-copy { font-size: 11px; color: rgba(255,255,255,0.28); }
 
 @media(max-width:900px){
-  nav,.hero,.stats-band,.section,.cta-section,footer{padding-left:24px;padding-right:24px}
-  nav{padding-top:0;padding-bottom:0}
-  .hero-title{font-size:34px}
-  .hero-btns{flex-direction:column;align-items:center}
-  .stats-band{grid-template-columns:1fr 1fr}
-  .features-grid,.steps-grid{grid-template-columns:1fr}
-  .strands-grid{grid-template-columns:1fr 1fr}
-  footer{flex-direction:column;gap:10px;text-align:center}
+  nav, .hero, .stats-band, .section, .cta-section, footer { padding-left: 24px; padding-right: 24px; }
+  .hero-title { font-size: 34px; }
+  .hero-btns, .cta-btns { flex-direction: column; align-items: center; }
+  .stats-band { grid-template-columns: 1fr 1fr; }
+  .features-grid, .steps-grid { grid-template-columns: 1fr; }
+  .strands-grid { grid-template-columns: 1fr 1fr; }
+  .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+  footer { flex-direction: column; gap: 10px; text-align: center; }
 }
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="blob1"></div>
+<div class="blob2"></div>
 
 <nav>
   <div class="nav-logo">
-    <div class="nav-logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-    </div>
+    <div class="nav-logo-icon"><i class="bi bi-mortarboard-fill"></i></div>
     <div>
-      <div class="nav-logo-text">EnrollEase</div>
+      <div class="nav-logo-text">Enroll<span>Ease</span></div>
       <div class="nav-logo-sub">SHS Enrollment System</div>
     </div>
   </div>
@@ -190,157 +297,89 @@ footer{
   <div class="hero-inner">
     <div class="hero-badge">
       <span class="hero-badge-dot"></span>
-      Now Open — S.Y. 2024–2025 Enrollment
+      Now Open &mdash; S.Y. 2024&ndash;2025 Enrollment
     </div>
     <h1 class="hero-title">Enroll Smarter,<br/><span>Not Harder</span></h1>
     <p class="hero-sub">The official Senior High School enrollment system of Davao City National High School. Fast, organized, and fully paperless.</p>
     <div class="hero-btns">
-      <a class="hero-btn primary" href="/signup">Start Your Enrollment</a>
-      <a class="hero-btn ghost" href="/login">Log In to Your Account</a>
+      <a class="hero-btn primary" href="/signup">
+        <i class="bi bi-person-plus-fill"></i> Start Your Enrollment
+      </a>
+      <a class="hero-btn ghost" href="/login">
+        <i class="bi bi-box-arrow-in-right"></i> Log In to Your Account
+      </a>
     </div>
   </div>
 </section>
 
 <div class="stats-band">
-  <div class="stat-item">
-    <div class="stat-val">5</div>
-    <div class="stat-label">Academic Strands</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-val">100%</div>
-    <div class="stat-label">Paperless Process</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-val">G11 & G12</div>
-    <div class="stat-label">Grade Levels</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-val">Real-time</div>
-    <div class="stat-label">Status Tracking</div>
-  </div>
+  <div class="stat-item"><div class="stat-val">5</div><div class="stat-label">Academic Strands</div></div>
+  <div class="stat-item"><div class="stat-val">100%</div><div class="stat-label">Paperless Process</div></div>
+  <div class="stat-item"><div class="stat-val">G11 &amp; G12</div><div class="stat-label">Grade Levels</div></div>
+  <div class="stat-item"><div class="stat-val">Real-time</div><div class="stat-label">Status Tracking</div></div>
 </div>
 
 <section class="section" id="features">
-  <div style="max-width:1100px;margin:0 auto">
+  <div class="sec-inner">
     <div class="sec-label">Why EnrollEase</div>
     <div class="sec-title">Everything you need<br/>to enroll with ease</div>
     <div class="sec-sub">No more long lines, lost papers, or confusion. EnrollEase handles everything digitally and securely.</div>
     <div class="features-grid">
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
-        <div class="feat-title">Online Application</div>
-        <div class="feat-desc">Submit your enrollment application online without visiting the school. Fill out forms digitally in minutes.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="feat-title">Real-time Status</div>
-        <div class="feat-desc">Check your enrollment status anytime — see instantly if you are pending, enrolled, or need to follow up.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-        <div class="feat-title">Strand Selection</div>
-        <div class="feat-desc">Choose from 5 available strands with real-time slot availability so you always know where to apply.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-        <div class="feat-title">Section Assignment</div>
-        <div class="feat-desc">Get assigned to a section based on your chosen strand and grade level with capacity tracking.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-        <div class="feat-title">Digital Records</div>
-        <div class="feat-desc">All your enrollment information is stored securely and accessible anytime through your personal portal.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-        <div class="feat-title">Instant Updates</div>
-        <div class="feat-desc">Your portal reflects every change immediately — from submission to approval, every step is visible.</div>
-      </div>
+      <div class="feat-card"><div class="feat-icon"><i class="bi bi-check2-circle"></i></div><div class="feat-title">Online Application</div><div class="feat-desc">Submit your enrollment application online without visiting the school. Fill out forms digitally in minutes.</div></div>
+      <div class="feat-card"><div class="feat-icon"><i class="bi bi-clock-fill"></i></div><div class="feat-title">Real-time Status</div><div class="feat-desc">Check your enrollment status anytime — see instantly if you are pending, enrolled, or need to follow up.</div></div>
+      <div class="feat-card"><div class="feat-icon"><i class="bi bi-bullseye"></i></div><div class="feat-title">Strand Selection</div><div class="feat-desc">Choose from 5 available strands with real-time slot availability so you always know where to apply.</div></div>
+      <div class="feat-card"><div class="feat-icon"><i class="bi bi-grid-fill"></i></div><div class="feat-title">Section Assignment</div><div class="feat-desc">Get assigned to a section based on your chosen strand and grade level with capacity tracking.</div></div>
+      <div class="feat-card"><div class="feat-icon"><i class="bi bi-folder-fill"></i></div><div class="feat-title">Digital Records</div><div class="feat-desc">All your enrollment information is stored securely and accessible anytime through your personal portal.</div></div>
+      <div class="feat-card"><div class="feat-icon"><i class="bi bi-lightning-fill"></i></div><div class="feat-title">Instant Updates</div><div class="feat-desc">Your portal reflects every change immediately — from submission to approval, every step is visible.</div></div>
     </div>
   </div>
 </section>
 
-<section class="section gray" id="how">
-  <div style="max-width:1100px;margin:0 auto">
+<section class="section alt" id="how">
+  <div class="sec-inner">
     <div class="sec-label">How It Works</div>
     <div class="sec-title">Enrolled in 4 simple steps</div>
     <div class="sec-sub">The entire enrollment process is done online — from account creation to confirmation.</div>
     <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-title">Create Your Account</div>
-        <div class="step-desc">Sign up using your LRN and personal details to get access to the enrollment portal.</div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-title">Choose Your Strand</div>
-        <div class="step-desc">Select your preferred strand and grade level. View available slots before applying.</div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-title">Submit Application</div>
-        <div class="step-desc">Complete the enrollment form with your personal and guardian information and submit.</div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">4</div>
-        <div class="step-title">Get Confirmed</div>
-        <div class="step-desc">Wait for admin approval and check your portal anytime to see your enrollment status.</div>
-      </div>
+      <div class="step-card"><div class="step-num">1</div><div class="step-title">Create Your Account</div><div class="step-desc">Sign up using your LRN and personal details to get access to the enrollment portal.</div></div>
+      <div class="step-card"><div class="step-num">2</div><div class="step-title">Choose Your Strand</div><div class="step-desc">Select your preferred strand and grade level. View available slots before applying.</div></div>
+      <div class="step-card"><div class="step-num">3</div><div class="step-title">Submit Application</div><div class="step-desc">Complete the enrollment form with your personal and guardian information and submit.</div></div>
+      <div class="step-card"><div class="step-num">4</div><div class="step-title">Get Confirmed</div><div class="step-desc">Wait for admin approval and check your portal anytime to see your enrollment status.</div></div>
     </div>
   </div>
 </section>
 
 <section class="section" id="strands">
-  <div style="max-width:1100px;margin:0 auto">
+  <div class="sec-inner">
     <div class="sec-label">Available Strands</div>
     <div class="sec-title">Find the strand that fits you</div>
     <div class="sec-sub">Davao City National High School offers 5 SHS strands for Grade 11 and Grade 12.</div>
     <div class="strands-grid">
-      <div class="strand-card">
-        <div class="strand-icon" style="background:#E8F5E9">🔬</div>
-        <div class="strand-code">STEM</div>
-        <div class="strand-name">Science, Technology, Engineering & Mathematics</div>
-      </div>
-      <div class="strand-card">
-        <div class="strand-icon" style="background:#EBF3FB">📊</div>
-        <div class="strand-code">ABM</div>
-        <div class="strand-name">Accountancy, Business & Management</div>
-      </div>
-      <div class="strand-card">
-        <div class="strand-icon" style="background:#FFF8E1">📚</div>
-        <div class="strand-code">HUMSS</div>
-        <div class="strand-name">Humanities & Social Sciences</div>
-      </div>
-      <div class="strand-card">
-        <div class="strand-icon" style="background:#FDF2F8">🔧</div>
-        <div class="strand-code">TVL</div>
-        <div class="strand-name">Technical-Vocational & Livelihood</div>
-      </div>
-      <div class="strand-card">
-        <div class="strand-icon" style="background:#F0FDFA">🌐</div>
-        <div class="strand-code">GAS</div>
-        <div class="strand-name">General Academic Strand</div>
-      </div>
+      <div class="strand-card"><div class="strand-icon"><i class="bi bi-rocket-fill"></i></div><div class="strand-code">STEM</div><div class="strand-name">Science, Technology, Engineering &amp; Mathematics</div></div>
+      <div class="strand-card"><div class="strand-icon"><i class="bi bi-graph-up-arrow"></i></div><div class="strand-code">ABM</div><div class="strand-name">Accountancy, Business &amp; Management</div></div>
+      <div class="strand-card"><div class="strand-icon"><i class="bi bi-book-fill"></i></div><div class="strand-code">HUMSS</div><div class="strand-name">Humanities &amp; Social Sciences</div></div>
+      <div class="strand-card"><div class="strand-icon"><i class="bi bi-tools"></i></div><div class="strand-code">TVL</div><div class="strand-name">Technical-Vocational &amp; Livelihood</div></div>
+      <div class="strand-card"><div class="strand-icon"><i class="bi bi-globe2"></i></div><div class="strand-code">GAS</div><div class="strand-name">General Academic Strand</div></div>
     </div>
   </div>
 </section>
 
 <section class="cta-section">
-  <div class="sec-label" style="color:#93C5FD">Enrollment is Open</div>
+  <div class="cta-label">Enrollment is Open</div>
   <div class="cta-title">Ready to start your SHS journey?</div>
   <div class="cta-sub">Create your account now and complete your enrollment online — fast, easy, and fully paperless.</div>
   <div class="cta-btns">
-    <a class="cta-btn white" href="/signup">Enroll Now</a>
-    <a class="cta-btn outline" href="/login">Log In</a>
+    <a class="cta-btn solid" href="/signup"><i class="bi bi-person-plus-fill"></i> Enroll Now</a>
+    <a class="cta-btn outline" href="/login"><i class="bi bi-box-arrow-in-right"></i> Log In</a>
   </div>
 </section>
 
 <footer>
   <div>
-    <div class="footer-logo">EnrollEase</div>
-    <div class="footer-sub">Davao City National High School · Senior High School Department · S.Y. 2024–2025</div>
+    <div class="footer-logo">Enroll<span>Ease</span></div>
+    <div class="footer-sub">Davao City National High School &middot; Senior High School Department &middot; S.Y. 2024&ndash;2025</div>
   </div>
-  <div class="footer-copy">© 2025 EnrollEase. All rights reserved.</div>
+  <div class="footer-copy">&copy; 2025 EnrollEase. All rights reserved.</div>
 </footer>
 
 </body>

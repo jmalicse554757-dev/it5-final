@@ -1,334 +1,268 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>EnrollEase — Add Student</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+{% extends "base.html" %}
+{% block title %}Add Student{% endblock %}
+{% block page_title %}Add Student{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-sm" href="/students"><i class="bi bi-arrow-left"></i> Cancel</a>
+{% endblock %}
+
+{% block content %}
+<div class="steps-bar">
+  <div class="step-item active" id="si-1">
+    <div class="step-dot">1</div>
+    <div class="step-lbl">Personal Info</div>
+  </div>
+  <div class="step-bar-line"></div>
+  <div class="step-item" id="si-2">
+    <div class="step-dot">2</div>
+    <div class="step-lbl">Guardian Info</div>
+  </div>
+  <div class="step-bar-line"></div>
+  <div class="step-item" id="si-3">
+    <div class="step-dot">3</div>
+    <div class="step-lbl">Strand & Section</div>
+  </div>
+  <div class="step-bar-line"></div>
+  <div class="step-item" id="si-4">
+    <div class="step-dot">4</div>
+    <div class="step-lbl">Review & Submit</div>
+  </div>
+</div>
+
+<form method="POST" action="/students/add" id="enrollForm">
+
+  <!-- STEP 1 -->
+  <div class="step-panel active" id="panel-1">
+    <div class="card">
+      <div class="card-header"><div class="card-title"><i class="bi bi-person-fill"></i> Personal Information</div></div>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label class="form-label">Last Name *</label>
+          <input class="form-control" type="text" name="last_name" id="r_last_name" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">First Name *</label>
+          <input class="form-control" type="text" name="first_name" id="r_first_name" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Middle Name</label>
+          <input class="form-control" type="text" name="middle_name" id="r_middle_name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">LRN *</label>
+          <input class="form-control" type="text" name="lrn" id="r_lrn" maxlength="12" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Birth *</label>
+          <input class="form-control" type="date" name="date_of_birth" id="r_dob" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sex *</label>
+          <select class="form-control" name="sex" id="r_sex" required>
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact Number</label>
+          <input class="form-control" type="text" name="contact_number" id="r_contact"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input class="form-control" type="email" name="email" id="r_email" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Suffix</label>
+          <select class="form-control" name="suffix" id="r_suffix">
+            <option value="">None</option>
+            <option value="Jr.">Jr.</option>
+            <option value="Sr.">Sr.</option>
+            <option value="III">III</option>
+            <option value="IV">IV</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Address</label>
+          <textarea class="form-control" name="address" id="r_address" style="height:72px;resize:none"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-primary" onclick="goStep(2)">
+        Next: Guardian Info <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-panel" id="panel-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title"><i class="bi bi-people-fill"></i> Guardian Information</div></div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Guardian Full Name</label>
+          <input class="form-control" type="text" name="guardian_name" id="r_gname"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Relationship</label>
+          <select class="form-control" name="guardian_relationship" id="r_grel">
+            <option value="">Select</option>
+            <option value="Parent">Parent</option>
+            <option value="Grandparent">Grandparent</option>
+            <option value="Sibling">Sibling</option>
+            <option value="Relative">Relative</option>
+            <option value="Guardian">Guardian</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact Number</label>
+          <input class="form-control" type="text" name="guardian_contact" id="r_gcontact"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Occupation</label>
+          <input class="form-control" type="text" name="guardian_occupation" id="r_goccup"/>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn" onclick="goStep(1)"><i class="bi bi-arrow-left"></i> Back</button>
+      <button type="button" class="btn btn-primary" onclick="goStep(3)">
+        Next: Strand & Section <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-panel" id="panel-3">
+    <div class="card">
+      <div class="card-header"><div class="card-title"><i class="bi bi-diagram-3-fill"></i> Strand & Section Assignment</div></div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Grade Level *</label>
+          <select class="form-control" name="grade_level" id="grade_select" onchange="filterSections()" required>
+            <option value="">Select Grade</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Strand *</label>
+          <select class="form-control" name="strand_id" id="strand_select" onchange="filterSections()">
+            <option value="">Select Strand</option>
+            {% for strand in strands %}
+            <option value="{{ strand.id }}">{{ strand.code }} — {{ strand.full_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Section *</label>
+          <select class="form-control" name="section_id" id="section_select">
+            <option value="">Select strand and grade first</option>
+            {% for section in sections %}
+            <option value="{{ section.id }}"
+              data-strand="{{ section.strand_id }}"
+              data-grade="{{ section.grade_level }}"
+              class="section-opt">
+              {{ section.name }} ({{ section.current_count() }}/{{ section.max_capacity }} slots)
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn" onclick="goStep(2)"><i class="bi bi-arrow-left"></i> Back</button>
+      <button type="button" class="btn btn-primary" onclick="goStep(4)">
+        Next: Review <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-panel" id="panel-4">
+    <div class="card">
+      <div class="card-header"><div class="card-title"><i class="bi bi-clipboard2-check-fill"></i> Review & Confirm</div></div>
+      <div class="review-grid">
+        <div class="review-item"><div class="review-label">Full Name</div><div class="review-val" id="rev_name">—</div></div>
+        <div class="review-item"><div class="review-label">LRN</div><div class="review-val" id="rev_lrn">—</div></div>
+        <div class="review-item"><div class="review-label">Date of Birth</div><div class="review-val" id="rev_dob">—</div></div>
+        <div class="review-item"><div class="review-label">Sex</div><div class="review-val" id="rev_sex">—</div></div>
+        <div class="review-item"><div class="review-label">Contact</div><div class="review-val" id="rev_contact">—</div></div>
+        <div class="review-item"><div class="review-label">Guardian</div><div class="review-val" id="rev_guardian">—</div></div>
+        <div class="review-item"><div class="review-label">Strand</div><div class="review-val" id="rev_strand">—</div></div>
+        <div class="review-item"><div class="review-label">Section</div><div class="review-val" id="rev_section">—</div></div>
+      </div>
+      <div class="review-notice">
+        <i class="bi bi-info-circle-fill"></i>
+        Status will be set to <strong>PENDING</strong> — Admin or Staff must approve after submission.
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn" onclick="goStep(3)"><i class="bi bi-arrow-left"></i> Back</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Submit Enrollment</button>
+    </div>
+  </div>
+
+</form>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --navy:#0C447C;--navy2:#185FA5;--navy3:#042C53;
-  --blue-bg:#EBF3FB;--border:#E2E8F0;--bg:#F5F7FA;
-  --text:#1E293B;--muted:#64748B;--light:#94A3B8;
-  --green:#2E7D32;--green-bg:#E8F5E9;
-  --amber:#92600A;--amber-bg:#FFF8E1;
-  --red:#B91C1C;--red-bg:#FEF2F2;
-  --sidebar:240px;
-  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
+.steps-bar {
+  display: flex; align-items: center; margin-bottom: 24px;
 }
-body{display:flex;height:100vh;overflow:hidden;background:var(--bg)}
-.sidebar{width:var(--sidebar);min-width:var(--sidebar);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
-.logo-text{font-size:16px;font-weight:700;color:var(--navy3)}
-.logo-sub{font-size:10px;color:var(--muted);margin-top:1px}
-.sidebar-nav{flex:1;padding:12px 10px}
-.nav-section-label{font-size:10px;font-weight:600;color:var(--light);letter-spacing:.08em;text-transform:uppercase;padding:10px 10px 4px}
-.nav-link{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:.12s;margin-bottom:1px;border:none;background:transparent;width:100%;text-align:left;font-family:inherit;text-decoration:none}
-.nav-link:hover{background:var(--bg);color:var(--text)}
-.nav-link.active{background:var(--blue-bg);color:var(--navy);font-weight:600}
-.nav-badge{margin-left:auto;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;background:var(--amber-bg);color:var(--amber)}
-.sidebar-footer{padding:12px 14px;border-top:1px solid var(--border)}
-.user-card{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-bg);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.user-name{font-size:13px;font-weight:600}
-.user-role{font-size:11px;color:var(--muted)}
-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
-.topbar-title{font-size:15px;font-weight:700}
-.topbar-breadcrumb{font-size:12px;color:var(--muted)}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:34px;border-radius:8px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:.12s;border:1px solid var(--border);background:#fff;color:var(--text);text-decoration:none}
-.btn:hover{background:var(--bg)}
-.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
-.btn.primary:hover{background:var(--navy2)}
-.btn.danger{background:var(--red-bg);color:var(--red);border-color:var(--red-bg)}
-.page-content{flex:1;overflow-y:auto;padding:24px}
-.steps{display:flex;align-items:center;gap:0;margin-bottom:24px}
-.step{display:flex;align-items:center;gap:8px;flex:1}
-.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--border);color:var(--muted);flex-shrink:0}
-.step.active .step-num{background:var(--navy);color:#fff}
-.step.done .step-num{background:var(--green);color:#fff}
-.step-label{font-size:12px;font-weight:600;color:var(--muted)}
-.step.active .step-label{color:var(--navy)}
-.step-line{flex:1;height:2px;background:var(--border);margin:0 8px}
-.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
-.sec-title{font-size:13px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-grid.three{grid-template-columns:1fr 1fr 1fr}
-.form-col-full{grid-column:1/-1}
-.form-row{display:flex;flex-direction:column;gap:5px}
-.form-row label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.form-row input,
-.form-row select,
-.form-row textarea{height:38px;padding:0 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:#fff;color:var(--text)}
-.form-row textarea{height:70px;padding:10px 12px;resize:none}
-.form-row input:focus,
-.form-row select:focus,
-.form-row textarea:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(24,95,165,.1)}
-.step-panel{display:none}
-.step-panel.active{display:block}
-.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
-.alert{padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:14px}
-.alert.error{background:var(--red-bg);color:var(--red);border:1px solid #FEE2E2}
-.alert.success{background:var(--green-bg);color:var(--green);border:1px solid #C8E6C9}
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+.step-item {
+  display: flex; align-items: center; gap: 8px;
+}
+.step-dot {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  background: var(--border); color: var(--muted);
+  flex-shrink: 0; transition: .2s;
+}
+.step-lbl { font-size: 12px; font-weight: 600; color: var(--muted); transition: .2s; }
+.step-item.active .step-dot { background: var(--navy-top); color: var(--white); }
+.step-item.active .step-lbl { color: var(--navy-mid); }
+.step-item.done .step-dot { background: #166534; color: var(--white); }
+.step-item.done .step-lbl { color: #166534; }
+.step-bar-line { flex: 1; height: 2px; background: var(--border); margin: 0 10px; }
+
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+.form-actions {
+  display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;
+}
+
+.review-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;
+}
+.review-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+.review-val { font-size: 13px; font-weight: 600; color: var(--text); }
+
+.review-notice {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 14px; border-radius: 9px;
+  background: var(--amber-bg); color: var(--amber);
+  font-size: 12px; font-weight: 600;
+  border: 1px solid #FDE68A;
+}
+.review-notice i { flex-shrink: 0; }
 </style>
-</head>
-<body>
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-text">EnrollEase</div>
-    <div class="logo-sub">SHS Enrollment</div>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-section-label">Main</div>
-    <a class="nav-link" href="/dashboard">Dashboard</a>
-    <div class="nav-section-label">Enrollment</div>
-    <a class="nav-link active" href="/students/add">Add Student</a>
-    <a class="nav-link" href="/students">View Records</a>
-    <a class="nav-link" href="/students/search">Search Student</a>
-    <a class="nav-link" href="/pending">Pending</a>
-    <div class="nav-section-label">Management</div>
-    <a class="nav-link" href="/assign">Assign Strand & Section</a>
-    <a class="nav-link" href="/reports">Generate Report</a>
-            {% if current_user.role in ['admin', 'staff'] %}
-            <a class="nav-link" href="/admin/users">Manage Users</a>
-            {% endif %}
-  </nav>
-  <div class="sidebar-footer">
-    <div class="user-card">
-      <div class="user-avatar">{{ current_user.full_name[:2].upper() }}</div>
-      <div>
-        <div class="user-name">{{ current_user.full_name }}</div>
-        <div class="user-role">{{ current_user.role.title() }}</div>
-      </div>
-    </div>
-    <a class="nav-link" href="/logout" style="color:var(--red);margin-top:4px">Log Out</a>
-  </div>
-</aside>
+{% endblock %}
 
-<main>
-  <div class="topbar">
-    <div>
-      <div class="topbar-title">Add Student</div>
-      <div class="topbar-breadcrumb">Enrollment / Add New Student</div>
-    </div>
-    <div class="topbar-right">
-      <a class="btn" href="/students">Cancel</a>
-    </div>
-  </div>
-
-  <div class="page-content">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="alert {{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endwith %}
-
-    <div class="steps">
-      <div class="step active" id="step-indicator-1">
-        <div class="step-num">1</div>
-        <div class="step-label">Personal Info</div>
-      </div>
-      <div class="step-line"></div>
-      <div class="step" id="step-indicator-2">
-        <div class="step-num">2</div>
-        <div class="step-label">Guardian Info</div>
-      </div>
-      <div class="step-line"></div>
-      <div class="step" id="step-indicator-3">
-        <div class="step-num">3</div>
-        <div class="step-label">Strand & Section</div>
-      </div>
-      <div class="step-line"></div>
-      <div class="step" id="step-indicator-4">
-        <div class="step-num">4</div>
-        <div class="step-label">Review & Submit</div>
-      </div>
-    </div>
-
-    <form method="POST" action="/students/add" id="enrollForm">
-
-      <!-- STEP 1 -->
-      <div class="step-panel active" id="panel-1">
-        <div class="card">
-          <div class="sec-title">Personal Information</div>
-          <div class="form-grid three">
-            <div class="form-row">
-              <label>Last Name *</label>
-              <input type="text" name="last_name" id="r_last_name" required/>
-            </div>
-            <div class="form-row">
-              <label>First Name *</label>
-              <input type="text" name="first_name" id="r_first_name" required/>
-            </div>
-            <div class="form-row">
-              <label>Middle Name</label>
-              <input type="text" name="middle_name" id="r_middle_name"/>
-            </div>
-            <div class="form-row">
-              <label>LRN *</label>
-              <input type="text" name="lrn" id="r_lrn" maxlength="12" required/>
-            </div>
-            <div class="form-row">
-              <label>Date of Birth *</label>
-              <input type="date" name="date_of_birth" id="r_dob" required/>
-            </div>
-            <div class="form-row">
-              <label>Sex *</label>
-              <select name="sex" id="r_sex" required>
-                <option value="">Select</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label>Contact Number</label>
-              <input type="text" name="contact_number" id="r_contact"/>
-            </div>
-            <div class="form-row">
-              <label>Email</label>
-              <input type="email" name="email" id="r_email" required/>
-            </div>
-            <div class="form-row">
-              <label>Suffix</label>
-              <select name="suffix" id="r_suffix">
-                <option value="">None</option>
-                <option value="Jr.">Jr.</option>
-                <option value="Sr.">Sr.</option>
-                <option value="III">III</option>
-                <option value="IV">IV</option>
-              </select>
-            </div>
-            <div class="form-row form-col-full">
-              <label>Address</label>
-              <textarea name="address" id="r_address"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn primary" onclick="goStep(2)">Next: Guardian Info</button>
-        </div>
-      </div>
-
-      <!-- STEP 2 -->
-      <div class="step-panel" id="panel-2">
-        <div class="card">
-          <div class="sec-title">Guardian Information</div>
-          <div class="form-grid">
-            <div class="form-row">
-              <label>Guardian Full Name</label>
-              <input type="text" name="guardian_name" id="r_gname"/>
-            </div>
-            <div class="form-row">
-              <label>Relationship</label>
-              <select name="guardian_relationship" id="r_grel">
-                <option value="">Select</option>
-                <option value="Parent">Parent</option>
-                <option value="Grandparent">Grandparent</option>
-                <option value="Sibling">Sibling</option>
-                <option value="Relative">Relative</option>
-                <option value="Guardian">Guardian</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label>Contact Number</label>
-              <input type="text" name="guardian_contact" id="r_gcontact"/>
-            </div>
-            <div class="form-row">
-              <label>Occupation</label>
-              <input type="text" name="guardian_occupation" id="r_goccup"/>
-            </div>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn" onclick="goStep(1)">Back</button>
-          <button type="button" class="btn primary" onclick="goStep(3)">Next: Strand & Section</button>
-        </div>
-      </div>
-
-      <!-- STEP 3 -->
-      <div class="step-panel" id="panel-3">
-        <div class="card">
-          <div class="sec-title">Strand & Section Assignment</div>
-          <div class="form-grid">
-            <div class="form-row">
-              <label>Grade Level *</label>
-              <select name="grade_level" id="grade_select" onchange="filterSections()" required>
-                <option value="">Select Grade</option>
-                <option value="11">Grade 11</option>
-                <option value="12">Grade 12</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label>Strand *</label>
-              <select name="strand_id" id="strand_select" onchange="filterSections()">
-                <option value="">Select Strand</option>
-                {% for strand in strands %}
-                <option value="{{ strand.id }}">{{ strand.code }} — {{ strand.full_name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="form-row form-col-full">
-              <label>Section *</label>
-              <select name="section_id" id="section_select">
-                <option value="">Select strand and grade first</option>
-                {% for section in sections %}
-                <option value="{{ section.id }}"
-                  data-strand="{{ section.strand_id }}"
-                  data-grade="{{ section.grade_level }}"
-                  class="section-opt">
-                  {{ section.name }} ({{ section.current_count() }}/{{ section.max_capacity }} slots)
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn" onclick="goStep(2)">Back</button>
-          <button type="button" class="btn primary" onclick="goStep(4)">Next: Review</button>
-        </div>
-      </div>
-
-      <!-- STEP 4 REVIEW -->
-      <div class="step-panel" id="panel-4">
-        <div class="card">
-          <div class="sec-title">Review & Confirm</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:13px">
-            <div><span style="color:var(--muted)">Full Name:</span> <span id="rev_name">—</span></div>
-            <div><span style="color:var(--muted)">LRN:</span> <span id="rev_lrn">—</span></div>
-            <div><span style="color:var(--muted)">Date of Birth:</span> <span id="rev_dob">—</span></div>
-            <div><span style="color:var(--muted)">Sex:</span> <span id="rev_sex">—</span></div>
-            <div><span style="color:var(--muted)">Contact:</span> <span id="rev_contact">—</span></div>
-            <div><span style="color:var(--muted)">Guardian:</span> <span id="rev_guardian">—</span></div>
-            <div><span style="color:var(--muted)">Strand:</span> <span id="rev_strand">—</span></div>
-            <div><span style="color:var(--muted)">Section:</span> <span id="rev_section">—</span></div>
-          </div>
-          <div style="margin-top:16px;padding:12px;background:var(--amber-bg);border-radius:8px;font-size:12px;color:var(--amber);font-weight:600">
-            Status will be set to PENDING — Admin or Staff must approve after submission.
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn" onclick="goStep(3)">Back</button>
-          <button type="submit" class="btn primary">Submit Enrollment</button>
-        </div>
-      </div>
-
-    </form>
-  </div>
-</main>
-
+{% block scripts %}
 <script>
 let currentStep = 1;
 
 function goStep(n) {
   if (n > currentStep) {
     if (currentStep === 1) {
-      const required = ['r_last_name', 'r_first_name', 'r_lrn', 'r_dob', 'r_sex'];
-      for (let id of required) {
+      const req = ['r_last_name','r_first_name','r_lrn','r_dob','r_sex'];
+      for (let id of req) {
         if (!document.getElementById(id).value.trim()) {
           alert('Please fill in all required fields before continuing.');
           return;
@@ -346,17 +280,14 @@ function goStep(n) {
   }
 
   document.getElementById('panel-' + currentStep).classList.remove('active');
-  document.getElementById('step-indicator-' + currentStep).classList.remove('active');
-
-  if (n > currentStep) {
-    document.getElementById('step-indicator-' + currentStep).classList.add('done');
-  } else {
-    document.getElementById('step-indicator-' + currentStep).classList.remove('done');
-  }
+  const si = document.getElementById('si-' + currentStep);
+  si.classList.remove('active');
+  if (n > currentStep) si.classList.add('done');
+  else si.classList.remove('done');
 
   currentStep = n;
   document.getElementById('panel-' + currentStep).classList.add('active');
-  document.getElementById('step-indicator-' + currentStep).classList.add('active');
+  document.getElementById('si-' + currentStep).classList.add('active');
 
   if (n === 4) fillReview();
 }
@@ -371,11 +302,10 @@ function fillReview() {
   document.getElementById('rev_sex').textContent = document.getElementById('r_sex').value || '—';
   document.getElementById('rev_contact').textContent = document.getElementById('r_contact').value || '—';
   document.getElementById('rev_guardian').textContent = document.getElementById('r_gname').value || '—';
-
-  const strandSel = document.getElementById('strand_select');
-  const sectionSel = document.getElementById('section_select');
-  document.getElementById('rev_strand').textContent = strandSel.options[strandSel.selectedIndex]?.text || '—';
-  document.getElementById('rev_section').textContent = sectionSel.options[sectionSel.selectedIndex]?.text || '—';
+  const ss = document.getElementById('strand_select');
+  const sc = document.getElementById('section_select');
+  document.getElementById('rev_strand').textContent = ss.options[ss.selectedIndex]?.text || '—';
+  document.getElementById('rev_section').textContent = sc.options[sc.selectedIndex]?.text || '—';
 }
 
 function filterSections() {
@@ -383,7 +313,6 @@ function filterSections() {
   const grade = document.getElementById('grade_select').value;
   const opts = document.querySelectorAll('.section-opt');
   const sel = document.getElementById('section_select');
-
   sel.innerHTML = '<option value="">Select a section</option>';
   opts.forEach(opt => {
     if ((!strand || opt.dataset.strand === strand) && (!grade || opt.dataset.grade === grade)) {
@@ -392,4 +321,4 @@ function filterSections() {
   });
 }
 </script>
-
+{% endblock %}

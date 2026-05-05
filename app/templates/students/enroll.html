@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EnrollEase — Choose Your Program</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy: #021A33; --navy-mid: #042C53; --navy-top: #0C447C;
+  --blue: #185FA5; --teal: #0EA5C8; --teal2: #5DD6EC;
+  --white: #ffffff; --border: #E2E8F0; --bg: #F5F7FA;
+  --text: #1E293B; --muted: #64748B;
+  --green: #166534; --green-bg: #DCFCE7;
+  --amber: #92600A; --amber-bg: #FEF9C3;
+  --red: #991B1B; --red-bg: #FEE2E2;
+}
+body {
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  background: var(--navy-mid);
+  position: relative; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none; z-index: 0;
+}
+.blob { position: fixed; top: -10%; right: -5%; width: 450px; height: 450px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(14,165,200,0.08) 0%, transparent 70%);
+  pointer-events: none; z-index: 0; }
+
+/* TOPBAR */
+.topbar {
+  position: relative; z-index: 10; height: 60px;
+  background: rgba(2,26,51,0.85); backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+}
+.topbar-logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  border-radius: 9px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--white); box-shadow: 0 4px 10px rgba(14,165,200,0.28);
+}
+.logo-text { font-size: 15px; font-weight: 700; color: var(--white); }
+.logo-text span { color: var(--teal2); }
+.logo-sub { font-size: 10px; color: rgba(255,255,255,0.32); margin-top: 1px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 9px; padding: 6px 12px;
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  color: var(--white); display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+}
+.user-name { font-size: 12px; font-weight: 700; color: var(--white); }
+.btn-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 700;
+  font-family: Arial, sans-serif; cursor: pointer; text-decoration: none; transition: .15s;
+}
+.btn-back:hover { background: rgba(255,255,255,0.1); color: var(--white); }
+
+/* PAGE */
+.page { position: relative; z-index: 1; padding: 40px 24px; }
+.container { max-width: 900px; margin: 0 auto; }
+.page-heading { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 28px; }
+
+/* FLASH */
+.flash {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
+  margin-bottom: 16px; border: 1px solid;
+}
+.flash.error { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); color: #FCA5A5; }
+.flash.success { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #6EE7B7; }
+
+/* STRAND CARDS */
+.strand-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 28px; }
+.strand-card {
+  background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 20px 14px; text-align: center;
+  cursor: pointer; transition: .2s;
+}
+.strand-card:hover { border-color: rgba(14,165,200,0.4); background: rgba(14,165,200,0.06); transform: translateY(-2px); }
+.strand-card.selected { border-color: var(--teal); background: rgba(14,165,200,0.12); }
+.strand-icon {
+  width: 46px; height: 46px; border-radius: 12px; margin: 0 auto 12px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--teal2);
+}
+.strand-card.selected .strand-icon { background: rgba(14,165,200,0.2); border-color: rgba(14,165,200,0.3); }
+.strand-code { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+.strand-name { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+
+/* SECTION PICKER */
+.section-area {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 22px; margin-bottom: 20px;
+}
+.section-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.4);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px; }
+.section-label i { color: var(--teal); }
+.section-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.section-card {
+  background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 14px; cursor: pointer; transition: .2s;
+}
+.section-card:hover:not(.full) { border-color: rgba(14,165,200,0.35); background: rgba(14,165,200,0.06); }
+.section-card.selected { border-color: var(--teal); background: rgba(14,165,200,0.12); }
+.section-card.full { opacity: .45; cursor: not-allowed; }
+.section-name { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.section-meta { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+.section-bar-bg { height: 5px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+.section-bar-fill { height: 100%; border-radius: 10px; transition: .3s; }
+.section-full-tag {
+  font-size: 10px; font-weight: 700; color: #FCA5A5;
+  background: rgba(239,68,68,0.15); border-radius: 4px;
+  padding: 2px 7px; margin-top: 6px; display: inline-block;
+}
+.empty-section { text-align: center; padding: 32px; color: rgba(255,255,255,0.25); font-size:13px; }
+
+/* GRADE TOGGLE */
+.grade-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
+.grade-btn {
+  padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5);
+  font-family: Arial, sans-serif; transition: .15s;
+}
+.grade-btn.active { background: rgba(14,165,200,0.15); border-color: rgba(14,165,200,0.4); color: var(--teal2); }
+
+/* SUBMIT */
+.submit-area {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 20px 22px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.submit-summary { font-size: 13px; color: rgba(255,255,255,0.5); }
+.submit-summary strong { color: var(--white); }
+.btn-submit {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  color: var(--white); font-size: 14px; font-weight: 700;
+  font-family: Arial, sans-serif; cursor: pointer; transition: .2s;
+  box-shadow: 0 4px 14px rgba(14,165,200,0.25);
+}
+.btn-submit:hover { opacity: .9; transform: translateY(-1px); }
+.btn-submit:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+.notice {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.2);
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+  font-size: 12px; color: #FCD34D; line-height: 1.6;
+}
+.notice i { flex-shrink: 0; margin-top: 1px; }
+
+@media(max-width:700px){
+  .strand-grid { grid-template-columns: 1fr 1fr; }
+  .section-grid { grid-template-columns: 1fr 1fr; }
+  .submit-area { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="blob"></div>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-mark"><i class="bi bi-mortarboard-fill"></i></div>
+    <div>
+      <div class="logo-text">Enroll<span>Ease</span></div>
+      <div class="logo-sub">Student Portal</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="user-chip">
+      <div class="user-avatar">{{ current_user.full_name[:2].upper() }}</div>
+      <div class="user-name">{{ current_user.full_name }}</div>
+    </div>
+    <a class="btn-back" href="/portal"><i class="bi bi-arrow-left"></i> Back to Portal</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="container">
+    <div class="page-heading">Choose Your Program</div>
+    <div class="page-sub">Select your preferred strand and section for S.Y. 2024–2025</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+      <div class="flash {{ category }}">
+        <i class="bi {% if category == 'error' %}bi-exclamation-triangle-fill{% else %}bi-check-circle-fill{% endif %}"></i>
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="notice">
+      <i class="bi bi-info-circle-fill"></i>
+      <div>After submitting, your enrollment will be set to <strong>Pending</strong>. A staff member will review your application, confirm your section assignment, and ask you to submit your requirements in person.</div>
+    </div>
+
+    <form method="POST" action="/enroll" id="enrollForm">
+      <input type="hidden" name="strand_id" id="f_strand_id"/>
+      <input type="hidden" name="section_id" id="f_section_id"/>
+
+      <!-- STRAND SELECTION -->
+      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">
+        <i class="bi bi-mortarboard-fill" style="color:var(--teal)"></i> Step 1 — Select Strand
+      </div>
+      <div class="strand-grid">
+        {% set icons = {'STEM':'bi-rocket-fill','ABM':'bi-graph-up-arrow','HUMSS':'bi-book-fill','TVL':'bi-tools','GAS':'bi-globe2'} %}
+        {% for strand in strands %}
+        <div class="strand-card" onclick="selectStrand({{ strand.id }}, '{{ strand.code }}', '{{ strand.full_name }}', this)">
+          <div class="strand-icon">
+            <i class="bi {{ icons.get(strand.code, 'bi-mortarboard-fill') }}"></i>
+          </div>
+          <div class="strand-code">{{ strand.code }}</div>
+          <div class="strand-name">{{ strand.full_name }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- GRADE + SECTION SELECTION -->
+      <div class="section-area" id="sectionArea" style="display:none">
+        <div class="section-label"><i class="bi bi-grid-fill"></i> Step 2 — Select Grade Level & Section</div>
+        <div class="grade-toggle">
+          <button type="button" class="grade-btn active" onclick="selectGrade(11, this)">Grade 11</button>
+          <button type="button" class="grade-btn" onclick="selectGrade(12, this)">Grade 12</button>
+        </div>
+        <div class="section-grid" id="sectionGrid">
+          <div class="empty-section">Select a strand first.</div>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-area" id="submitArea" style="display:none">
+        <div class="submit-summary">
+          You are applying for <strong id="sum_strand">—</strong>, <strong id="sum_section">—</strong><br/>
+          <span style="font-size:11px">Your status will be Pending until staff confirms your enrollment.</span>
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <i class="bi bi-send-fill"></i> Submit Enrollment
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const allSections = [
+  {% for section in sections %}
+  {
+    id: {{ section.id }},
+    name: "{{ section.name }}",
+    strand_id: {{ section.strand_id }},
+    grade: "{{ section.grade_level }}",
+    count: {{ section.current_count() }},
+    max: {{ section.max_capacity }},
+    school_year: "{{ section.school_year }}"
+  },
+  {% endfor %}
+];
+
+let selectedStrandId = null;
+let selectedGrade = 11;
+let selectedSectionId = null;
+let selectedStrandName = '';
+let selectedSectionName = '';
+
+function selectStrand(id, code, fullName, el) {
+  document.querySelectorAll('.strand-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedStrandId = id;
+  selectedStrandName = code + ' — ' + fullName;
+  document.getElementById('f_strand_id').value = id;
+  selectedSectionId = null;
+  document.getElementById('f_section_id').value = '';
+  document.getElementById('sectionArea').style.display = 'block';
+  document.getElementById('submitArea').style.display = 'none';
+  renderSections();
+}
+
+function selectGrade(grade, btn) {
+  selectedGrade = grade;
+  document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedSectionId = null;
+  document.getElementById('f_section_id').value = '';
+  document.getElementById('submitArea').style.display = 'none';
+  renderSections();
+}
+
+function renderSections() {
+  const grid = document.getElementById('sectionGrid');
+  const filtered = allSections.filter(s =>
+    s.strand_id === selectedStrandId && s.grade === String(selectedGrade)
+  );
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-section" style="grid-column:1/-1"><i class="bi bi-inbox" style="font-size:24px;display:block;margin-bottom:8px;opacity:.3"></i>No sections available for this strand and grade.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(s => {
+    const pct = Math.min(Math.round((s.count / s.max) * 100), 100);
+    const isFull = s.count >= s.max;
+    const barColor = pct >= 90 ? '#EF4444' : pct >= 70 ? '#F59E0B' : '#0EA5C8';
+    return `
+      <div class="section-card ${isFull ? 'full' : ''}" onclick="${isFull ? '' : `selectSection(${s.id}, '${s.name}', this)`}">
+        <div class="section-name">${s.name}</div>
+        <div class="section-meta">${s.count}/${s.max} students &nbsp;·&nbsp; ${s.school_year}</div>
+        <div class="section-bar-bg">
+          <div class="section-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+        ${isFull ? '<div class="section-full-tag">Section Full</div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function selectSection(id, name, el) {
+  document.querySelectorAll('.section-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSectionId = id;
+  selectedSectionName = name;
+  document.getElementById('f_section_id').value = id;
+  document.getElementById('sum_strand').textContent = selectedStrandName;
+  document.getElementById('sum_section').textContent = name;
+  document.getElementById('submitArea').style.display = 'flex';
+}
+</script>
+</body>
+</html>
