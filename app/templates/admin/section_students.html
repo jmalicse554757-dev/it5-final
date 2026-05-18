@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% block title %}Students per Section{% endblock %}
+{% block page_title %}Students per Section{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-sm" href="/admin/sections">
+    <i class="bi bi-grid-fill"></i> Sections
+</a>
+{% endblock %}
+
+{% block head %}
+<style>
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  }
+  .filter-bar select,
+  .filter-bar input {
+    border: 1px solid var(--border, #e0e4ea);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: .85rem;
+    background: var(--input-bg, #f8f9fb);
+    color: inherit;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .filter-bar select:focus,
+  .filter-bar input:focus { border-color: var(--primary, #2563eb); }
+  .filter-bar .btn-filter {
+    background: var(--primary, #2563eb);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 18px;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity .2s;
+  }
+  .filter-bar .btn-filter:hover { opacity: .88; }
+
+  .summary-strip {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 12px;
+    padding: 12px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    min-width: 160px;
+  }
+  .stat-pill .stat-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .stat-pill .stat-icon.blue  { background: #dbeafe; color: #1d4ed8; }
+  .stat-pill .stat-icon.green { background: #dcfce7; color: #16a34a; }
+  .stat-pill .stat-label { font-size: .72rem; color: var(--text-muted, #6b7280); font-weight: 500; }
+  .stat-pill .stat-value { font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
+
+  .section-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .section-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    gap: 12px;
+  }
+  .section-header:hover { background: var(--hover-bg, #f8f9fb); }
+
+  .section-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .section-name { font-weight: 700; font-size: 1rem; }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .tag-strand { background: #ede9fe; color: #6d28d9; }
+  .tag-grade  { background: #dbeafe; color: #1d4ed8; }
+  .tag-year   { background: #f3f4f6; color: #374151; }
+
+  .section-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .capacity-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .capacity-bar {
+    width: 80px; height: 6px;
+    background: #e5e7eb;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .capacity-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: #2563eb;
+    transition: width .4s ease;
+  }
+  .capacity-bar-fill.warn { background: #f59e0b; }
+  .capacity-bar-fill.full { background: #ef4444; }
+  .capacity-text {
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--text-muted, #6b7280);
+    white-space: nowrap;
+  }
+  .chevron {
+    color: var(--text-muted, #9ca3af);
+    font-size: .85rem;
+    transition: transform .25s;
+  }
+  .section-card.open .chevron { transform: rotate(180deg); }
+
+  .section-body { display: none; border-top: 1px solid var(--border, #f0f0f0); }
+  .section-card.open .section-body { display: block; }
+
+  .student-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  .student-table thead th {
+    padding: 9px 16px;
+    text-align: left;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted, #6b7280);
+    background: var(--table-head, #f8f9fb);
+    border-bottom: 1px solid var(--border, #e5e7eb);
+  }
+  .student-table tbody tr {
+    border-bottom: 1px solid var(--border, #f3f4f6);
+    transition: background .15s;
+  }
+  .student-table tbody tr:last-child { border-bottom: none; }
+  .student-table tbody tr:hover { background: var(--hover-bg, #f8f9fb); }
+  .student-table td { padding: 10px 16px; vertical-align: middle; }
+
+  .num-cell  { color: var(--text-muted, #9ca3af); font-weight: 500; width: 40px; }
+  .lrn-cell  { font-family: monospace; font-size: .82rem; color: var(--text-muted, #6b7280); }
+  .name-cell { font-weight: 600; }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: capitalize;
+  }
+  .status-enrolled { background: #dcfce7; color: #15803d; }
+  .status-pending  { background: #fef9c3; color: #a16207; }
+  .status-rejected { background: #fee2e2; color: #b91c1c; }
+  .status-default  { background: #f3f4f6; color: #374151; }
+
+  .empty-section {
+    padding: 20px;
+    color: var(--text-muted, #9ca3af);
+    font-size: .84rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .no-sections { text-align: center; padding: 60px 20px; color: var(--text-muted, #9ca3af); }
+  .no-sections i { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+  .no-sections p { font-size: .9rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- Filter Bar -->
+  <form method="GET" action="/admin/section-students" class="filter-bar">
+    <select name="strand_id">
+      <option value="">All Strands</option>
+      {% for strand in strands %}
+      <option value="{{ strand.id }}" {% if selected_strand == strand.id %}selected{% endif %}>
+        {{ strand.code }} — {{ strand.full_name }}
+      </option>
+      {% endfor %}
+    </select>
+
+    <select name="grade_level">
+      <option value="">All Grade Levels</option>
+      <option value="11" {% if selected_grade == '11' %}selected{% endif %}>Grade 11</option>
+      <option value="12" {% if selected_grade == '12' %}selected{% endif %}>Grade 12</option>
+    </select>
+
+    <input type="text" name="school_year"
+           placeholder="School Year e.g. 2024-2025"
+           value="{{ selected_year or '' }}"
+           style="min-width:200px">
+
+    <button type="submit" class="btn-filter">
+      <i class="bi bi-funnel-fill"></i> Filter
+    </button>
+  </form>
+
+  <!-- Summary Strip -->
+  <div class="summary-strip">
+    <div class="stat-pill">
+      <div class="stat-icon blue"><i class="bi bi-grid-fill"></i></div>
+      <div>
+        <div class="stat-label">Total Sections</div>
+        <div class="stat-value">{{ section_data|length }}</div>
+      </div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon green"><i class="bi bi-people-fill"></i></div>
+      <div>
+        <div class="stat-label">Total Enrolled</div>
+        <div class="stat-value">{{ section_data|sum(attribute='count') }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Cards -->
+  {% for item in section_data %}
+  {% set pct = ((item.count / item.section.max_capacity) * 100)|int if item.section.max_capacity else 0 %}
+  <div class="section-card open" id="card-{{ item.section.id }}">
+
+    <div class="section-header" onclick="toggleCard('card-{{ item.section.id }}')">
+      <div class="section-title-group">
+        <span class="section-name">{{ item.section.name }}</span>
+        <span class="tag tag-strand">{{ item.section.strand.code if item.section.strand else 'No Strand' }}</span>
+        <span class="tag tag-grade">Grade {{ item.section.grade_level }}</span>
+        <span class="tag tag-year">{{ item.section.school_year }}</span>
+      </div>
+      <div class="section-right">
+        <div class="capacity-bar-wrap">
+          <div class="capacity-bar">
+            <div class="capacity-bar-fill {% if pct >= 100 %}full{% elif pct >= 80 %}warn{% endif %}"
+                 style="width: {{ [pct, 100]|min }}%"></div>
+          </div>
+          <span class="capacity-text">{{ item.count }} / {{ item.section.max_capacity }}</span>
+        </div>
+        <i class="bi bi-chevron-down chevron"></i>
+      </div>
+    </div>
+
+    <div class="section-body">
+      {% if item.enrollments %}
+      <table class="student-table">
+        <thead>
+          <tr>
+            <th class="num-cell">#</th>
+            <th>LRN</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enrollment in item.enrollments %}
+          {% set s = enrollment.student %}
+          <tr>
+            <td class="num-cell">{{ loop.index }}</td>
+            <td class="lrn-cell">{{ s.lrn }}</td>
+            <td class="name-cell">{{ s.last_name }}, {{ s.first_name }} {{ s.middle_name or '' }}</td>
+            <td>{{ s.gender or '—' }}</td>
+            <td>
+              <span class="status-badge status-{{ enrollment.status|lower if enrollment.status else 'default' }}">
+                {{ enrollment.status or 'Unknown' }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-section">
+        <i class="bi bi-inbox"></i> No students enrolled in this section yet.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
+  <div class="no-sections">
+    <i class="bi bi-folder2-open"></i>
+    <p>No sections found matching your filters.</p>
+  </div>
+  {% endfor %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+</script>
+{% endblock %}

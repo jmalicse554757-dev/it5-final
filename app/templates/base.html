@@ -24,21 +24,21 @@
 
   <nav class="sidebar-nav">
     <div class="nav-label">Main</div>
-    <a class="nav-link {% if request.path == '/dashboard' %}active{% endif %}" href="/dashboard">
+    <a class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}" href="/dashboard">
       <i class="bi bi-grid-1x2-fill"></i> Dashboard
     </a>
 
     <div class="nav-label">Enrollment</div>
-    <a class="nav-link {% if request.path == '/students/add' %}active{% endif %}" href="/students/add">
+    <a class="nav-link {% if request.endpoint == 'students.add' %}active{% endif %}" href="/students/add">
       <i class="bi bi-person-plus-fill"></i> Add Student
     </a>
-    <a class="nav-link {% if request.path == '/students' %}active{% endif %}" href="/students">
+    <a class="nav-link {% if request.endpoint == 'students.records' %}active{% endif %}" href="/students">
       <i class="bi bi-people-fill"></i> View Records
     </a>
-    <a class="nav-link {% if request.path == '/students/search' %}active{% endif %}" href="/students/search">
+    <a class="nav-link {% if request.endpoint == 'students.search' %}active{% endif %}" href="/students/search">
       <i class="bi bi-search"></i> Search Student
     </a>
-    <a class="nav-link {% if request.path == '/pending' %}active{% endif %}" href="/pending">
+    <a class="nav-link {% if request.endpoint == 'enrollment.pending' %}active{% endif %}" href="/pending">
       <i class="bi bi-hourglass-split"></i> Pending
       {% if total_pending is defined and total_pending > 0 %}
       <span class="nav-badge">{{ total_pending }}</span>
@@ -46,14 +46,17 @@
     </a>
 
     <div class="nav-label">Management</div>
-    <a class="nav-link {% if request.path == '/assign' %}active{% endif %}" href="/assign">
+    <a class="nav-link {% if request.endpoint == 'enrollment.assign' %}active{% endif %}" href="/assign">
       <i class="bi bi-diagram-3-fill"></i> Assign Strand & Section
     </a>
-    <a class="nav-link {% if request.path == '/reports' %}active{% endif %}" href="/reports">
+    <a class="nav-link {% if request.endpoint == 'admin_bp.section_students' %}active{% endif %}" href="/admin/section-students">
+      <i class="bi bi-people-fill"></i> Students per Section
+    </a>
+    <a class="nav-link {% if request.endpoint == 'reports.index' %}active{% endif %}" href="/reports">
       <i class="bi bi-bar-chart-fill"></i> Generate Report
     </a>
     {% if current_user.role in ['admin'] %}
-    <a class="nav-link {% if '/admin' in request.path %}active{% endif %}" href="/admin/users">
+    <a class="nav-link {% if request.endpoint == 'admin_bp.users' %}active{% endif %}" href="/admin/users">
       <i class="bi bi-shield-fill"></i> Manage Users
     </a>
     {% endif %}
@@ -104,7 +107,6 @@
 </main>
 
 <script>
-// Auto dismiss flash after 4s
 document.querySelectorAll('.flash').forEach(el => {
   setTimeout(() => el.style.opacity = '0', 3500);
   setTimeout(() => el.remove(), 4000);

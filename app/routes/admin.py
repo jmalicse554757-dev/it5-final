@@ -56,11 +56,11 @@ def create_user():
 
     hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
     new_user = User(
-    full_name=full_name,
+        full_name=full_name,
         username=username,
         password_hash=hashed_pw,
         role=role,
-        active=True  
+        active=True
     )
     db.session.add(new_user)
     db.session.commit()
@@ -198,3 +198,49 @@ def delete_section(section_id):
 
     flash(f'Section {section.name} deleted.', 'success')
     return redirect(url_for('admin_bp.sections'))
+
+# ---- SECTION STUDENTS VIEW ----
+
+@admin.route('/admin/section-students')
+@login_required
+@admin_required
+def section_students():
+    from app.models.section import Section
+    from app.models.strand import Strand
+    from app.models.enrollment import Enrollment
+    from app.models.student import Student
+
+    strands = Strand.query.filter_by(is_active=True).all()
+
+    selected_strand = request.args.get('strand_id', type=int)
+    selected_grade  = request.args.get('grade_level', '')
+    selected_year   = request.args.get('school_year', '')
+
+    sections_query = Section.query
+
+    if selected_strand:
+        sections_query = sections_query.filter_by(strand_id=selected_strand)
+    if selected_grade:
+        sections_query = sections_query.filter_by(grade_level=selected_grade)
+    if selected_year:
+        sections_query = sections_query.filter_by(school_year=selected_year)
+
+    sections = sections_query.order_by(Section.grade_level, Section.name).all()
+
+    section_data = []
+    for section in sections:
+        enrollments = Enrollment.query.filter_by(section_id=section.id).all()
+        section_data.append({
+            'section': section,
+            'enrollments': enrollments,
+            'count': len(enrollments)
+        })
+
+    return render_template(
+        'admin/section_students.html',
+        section_data=section_data,
+        strands=strands,
+        selected_strand=selected_strand,
+        selected_grade=selected_grade,
+        selected_year=selected_year
+    )
