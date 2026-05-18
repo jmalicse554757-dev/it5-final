@@ -1,7 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 
 students = Blueprint('students', __name__)
+
+
+# ─────────────────────────────────────────────
+# READ — Records page
+# ─────────────────────────────────────────────
 
 @students.route('/students')
 @login_required
@@ -18,6 +23,11 @@ def records():
         strands=strands
     )
 
+
+# ─────────────────────────────────────────────
+# CREATE — Add student
+# ─────────────────────────────────────────────
+
 @students.route('/students/add', methods=['GET', 'POST'])
 @login_required
 def add():
@@ -26,6 +36,9 @@ def add():
     from app.models.enrollment import Enrollment
     from app.models.strand import Strand
     from app.models.section import Section
+
+    if current_user.role not in ['admin', 'staff']:
+        abort(403)
 
     strands = Strand.query.filter_by(is_active=True).all()
     sections = Section.query.filter_by(is_active=True).all()
@@ -37,7 +50,10 @@ def add():
 
         if existing:
             flash('LRN already exists!', 'error')
-            return redirect(url_for('students.add'))
+            return render_template('students/add.html',
+                strands=strands,
+                sections=sections
+            )
 
         student = Student(
             lrn=request.form.get('lrn'),
@@ -45,7 +61,7 @@ def add():
             first_name=request.form.get('first_name'),
             middle_name=request.form.get('middle_name'),
             suffix=request.form.get('suffix'),
-            date_of_birth=request.form.get('date_of_birth'),
+            date_of_birth=request.form.get('date_of_birth') or None,
             sex=request.form.get('sex'),
             contact_number=request.form.get('contact_number'),
             email=request.form.get('email'),
@@ -59,10 +75,13 @@ def add():
         db.session.add(student)
         db.session.flush()
 
+        strand_id  = request.form.get('strand_id')
+        section_id = request.form.get('section_id')
+
         enrollment = Enrollment(
             student_id=student.id,
-            strand_id=request.form.get('strand_id'),
-            section_id=request.form.get('section_id'),
+            strand_id=int(strand_id) if strand_id else None,
+            section_id=int(section_id) if section_id else None,
             school_year='2024-2025',
             status='pending'
         )
@@ -78,19 +97,10 @@ def add():
         sections=sections
     )
 
-@students.route('/students/<int:id>/delete', methods=['POST'])
-@login_required
-def delete(id):
-    from app import db
-    from app.models.student import Student
-    from app.models.enrollment import Enrollment
 
-    student = Student.query.get_or_404(id)
-    Enrollment.query.filter_by(student_id=id).delete()
-    db.session.delete(student)
-    db.session.commit()
-    flash('Student deleted!', 'success')
-    return redirect(url_for('students.records'))
+# ─────────────────────────────────────────────
+# UPDATE — Edit student
+# ─────────────────────────────────────────────
 
 @students.route('/students/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -101,8 +111,13 @@ def edit(id):
     from app.models.strand import Strand
     from app.models.section import Section
 
+    if current_user.role not in ['admin', 'staff']:
+        abort(403)
+
     student = Student.query.get_or_404(id)
-    enrollment = Enrollment.query.filter_by(student_id=id).order_by(Enrollment.date_applied.desc()).first()
+    enrollment = Enrollment.query.filter_by(
+        student_id=id
+    ).order_by(Enrollment.date_applied.desc()).first()
     strands = Strand.query.filter_by(is_active=True).all()
     sections = Section.query.filter_by(is_active=True).all()
 
@@ -128,6 +143,8 @@ def edit(id):
                 enrollment.strand_id  = int(strand_id)
             if section_id:
                 enrollment.section_id = int(section_id)
+        else:
+            flash('No enrollment record found — strand/section not updated.', 'error')
 
         db.session.commit()
         flash(f"{student.first_name}'s record updated successfully!", 'success')
@@ -140,6 +157,33 @@ def edit(id):
         sections=sections
     )
 
+
+# ─────────────────────────────────────────────
+# DELETE — Remove student
+# ─────────────────────────────────────────────
+
+@students.route('/students/<int:id>/delete', methods=['POST'])
+@login_required
+def delete(id):
+    from app import db
+    from app.models.student import Student
+    from app.models.enrollment import Enrollment
+
+    if current_user.role not in ['admin', 'staff']:
+        abort(403)
+
+    student = Student.query.get_or_404(id)
+    Enrollment.query.filter_by(student_id=id).delete()
+    db.session.delete(student)
+    db.session.commit()
+    flash('Student deleted!', 'success')
+    return redirect(url_for('students.records'))
+
+
+# ─────────────────────────────────────────────
+# SEARCH — Search students
+# ─────────────────────────────────────────────
+
 @students.route('/students/search')
 @login_required
 def search():
@@ -150,7 +194,7 @@ def search():
 
     strands = Strand.query.filter_by(is_active=True).all()
 
-    q = request.args.get('q', '').strip()
+    q               = request.args.get('q', '').strip()
     selected_strand = request.args.get('strand', '')
     selected_status = request.args.get('status', '')
 
@@ -185,10 +229,16 @@ def search():
         selected_status=selected_status
     )
 
+
+# ─────────────────────────────────────────────
+# STUDENT PORTAL — Student views own profile
+# ─────────────────────────────────────────────
+
 @students.route('/students/my-profile')
 @login_required
 def my_profile():
     return render_template('students/profile.html')
+
 
 @students.route('/portal')
 @login_required
@@ -196,7 +246,7 @@ def portal():
     from app.models.student import Student
     from app.models.enrollment import Enrollment
 
-    if current_user.role not in ['student']:
+    if current_user.role != 'student':
         return redirect(url_for('dashboard.index'))
 
     student = Student.query.filter_by(user_id=current_user.id).first()
@@ -212,6 +262,11 @@ def portal():
         student=student,
         enrollment=enrollment
     )
+
+
+# ─────────────────────────────────────────────
+# ENROLL — Student self-enrollment
+# ─────────────────────────────────────────────
 
 @students.route('/enroll', methods=['GET', 'POST'])
 @login_required
@@ -235,7 +290,7 @@ def enroll():
         flash('You already have an enrollment record.', 'error')
         return redirect(url_for('students.portal'))
 
-    strands = Strand.query.filter_by(is_active=True).all()
+    strands  = Strand.query.filter_by(is_active=True).all()
     sections = Section.query.filter_by(is_active=True).all()
 
     if request.method == 'POST':
@@ -245,25 +300,35 @@ def enroll():
         if not strand_id or not section_id:
             flash('Please select both a strand and section.', 'error')
             return render_template('students/enroll.html',
-                strands=strands, sections=sections, student=student)
+                strands=strands,
+                sections=sections,
+                student=student
+            )
 
         section = Section.query.get(section_id)
         if section and section.is_full():
             flash('That section is already full. Please choose another.', 'error')
             return render_template('students/enroll.html',
-                strands=strands, sections=sections, student=student)
+                strands=strands,
+                sections=sections,
+                student=student
+            )
 
         enrollment = Enrollment(
             student_id=student.id,
-            strand_id=strand_id,
-            section_id=section_id,
+            strand_id=int(strand_id) if strand_id else None,
+            section_id=int(section_id) if section_id else None,
             school_year='2024-2025',
             status='pending'
         )
         db.session.add(enrollment)
         db.session.commit()
+
         flash('Enrollment submitted! Please wait for staff confirmation.', 'success')
         return redirect(url_for('students.portal'))
 
     return render_template('students/enroll.html',
-        strands=strands, sections=sections, student=student)
+        strands=strands,
+        sections=sections,
+        student=student
+    )

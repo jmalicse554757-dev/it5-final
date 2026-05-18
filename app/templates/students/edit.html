@@ -44,9 +44,10 @@
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
       <div class="form-group">
         <label class="form-label">LRN</label>
-        <input class="form-control" type="text" value="{{ student.lrn }}" disabled
-          style="background:var(--bg);color:var(--muted)"/>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px">LRN cannot be changed</div>
+       <input class="form-control" type="text" value="{{ student.lrn }}" disabled
+        style="background:var(--bg);color:var(--muted)"/>
+      <input type="hidden" name="lrn" value="{{ student.lrn }}"/>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">LRN cannot be changed</div>
       </div>
       <div class="form-group">
         <label class="form-label">Date of Birth</label>

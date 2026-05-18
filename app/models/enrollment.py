@@ -15,7 +15,7 @@ class Enrollment(db.Model):
     remarks = db.Column(db.Text)
     enrolled_by = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    strand = db.relationship('Strand', backref='enrollments', lazy=True)
+    strand = db.relationship('Strand', lazy=True, overlaps="enrollments")
 
     def __repr__(self):
         return f'<Enrollment {self.id} - {self.status}>'
