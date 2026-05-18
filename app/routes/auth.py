@@ -1,12 +1,24 @@
+# ============================================================
+# auth.py — Authentication Blueprint
+# Handles: login, logout, signup, and landing page redirect
+# ============================================================
+
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 
 auth = Blueprint('auth', __name__)
 
+
+# --- Landing Page ---
+# Redirects to the landing/home page
 @auth.route('/')
 def index():
     return render_template('landing.html')
 
+
+# --- Login ---
+# Shows login form and authenticates user
+# Redirects students to portal, others to dashboard
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -34,6 +46,9 @@ def login():
 
     return render_template('auth/login.html')
 
+
+# --- Logout ---
+# Logs out the current user and redirects to login
 @auth.route('/logout')
 @login_required
 def logout():
@@ -41,6 +56,10 @@ def logout():
     flash('You have been logged out.', 'success')
     return redirect(url_for('auth.login'))
 
+
+# --- Signup ---
+# Handles new student self-registration
+# Creates both a User account and a linked Student record
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
@@ -63,44 +82,49 @@ def signup():
         middle_name      = request.form.get('middle_name', '').strip()
         contact_number   = request.form.get('contact_number', '').strip()
 
-        # Basic validation
+        # Validate required fields
         if not all([full_name, username, password, lrn, first_name, last_name]):
             flash('Please fill in all required fields.', 'error')
             return render_template('auth/signup.html')
 
+        # Validate password match
         if password != confirm:
             flash('Passwords do not match.', 'error')
             return render_template('auth/signup.html')
 
+        # Validate password length
         if len(password) < 6:
             flash('Password must be at least 6 characters.', 'error')
             return render_template('auth/signup.html')
 
+        # Validate LRN format (must be 12 digits)
         if len(lrn) != 12 or not lrn.isdigit():
             flash('LRN must be exactly 12 digits.', 'error')
             return render_template('auth/signup.html')
 
+        # Check for duplicate username
         if User.query.filter_by(username=username).first():
             flash('That username is already taken.', 'error')
             return render_template('auth/signup.html')
 
+        # Check for duplicate LRN
         if Student.query.filter_by(lrn=lrn).first():
             flash('An account with that LRN already exists.', 'error')
             return render_template('auth/signup.html')
 
-        # Create user account
+        # Create the User account
         hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
         new_user = User(
-        full_name=full_name,
-        username=username,
-        password_hash=hashed_pw,
-        role='student',
-        active=True  
-)
+            full_name=full_name,
+            username=username,
+            password_hash=hashed_pw,
+            role='student',
+            active=True
+        )
         db.session.add(new_user)
-        db.session.flush()
+        db.session.flush()  # Get new_user.id before committing
 
-        # Auto-create student record
+        # Auto-create linked Student record
         new_student = Student(
             lrn=lrn,
             first_name=first_name,

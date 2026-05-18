@@ -1,3 +1,8 @@
+# ============================================================
+# students.py — Students Blueprint
+# Handles: CRUD for student records, search, portal, enrollment
+# ============================================================
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 
@@ -6,8 +11,8 @@ students = Blueprint('students', __name__)
 
 # ─────────────────────────────────────────────
 # READ — Records page
+# Lists all students with pagination (20 per page)
 # ─────────────────────────────────────────────
-
 @students.route('/students')
 @login_required
 def records():
@@ -26,8 +31,8 @@ def records():
 
 # ─────────────────────────────────────────────
 # CREATE — Add student
+# Admin/staff only — adds student + creates enrollment record
 # ─────────────────────────────────────────────
-
 @students.route('/students/add', methods=['GET', 'POST'])
 @login_required
 def add():
@@ -40,21 +45,17 @@ def add():
     if current_user.role not in ['admin', 'staff']:
         abort(403)
 
-    strands = Strand.query.filter_by(is_active=True).all()
+    strands  = Strand.query.filter_by(is_active=True).all()
     sections = Section.query.filter_by(is_active=True).all()
 
     if request.method == 'POST':
-        existing = Student.query.filter_by(
-            lrn=request.form.get('lrn')
-        ).first()
-
+        # Block duplicate LRN
+        existing = Student.query.filter_by(lrn=request.form.get('lrn')).first()
         if existing:
             flash('LRN already exists!', 'error')
-            return render_template('students/add.html',
-                strands=strands,
-                sections=sections
-            )
+            return render_template('students/add.html', strands=strands, sections=sections)
 
+        # Create student record
         student = Student(
             lrn=request.form.get('lrn'),
             last_name=request.form.get('last_name'),
@@ -71,13 +72,12 @@ def add():
             guardian_contact=request.form.get('guardian_contact'),
             guardian_occupation=request.form.get('guardian_occupation')
         )
-
         db.session.add(student)
-        db.session.flush()
+        db.session.flush()  # Get student.id before committing
 
+        # Create linked enrollment record
         strand_id  = request.form.get('strand_id')
         section_id = request.form.get('section_id')
-
         enrollment = Enrollment(
             student_id=student.id,
             strand_id=int(strand_id) if strand_id else None,
@@ -85,23 +85,19 @@ def add():
             school_year='2024-2025',
             status='pending'
         )
-
         db.session.add(enrollment)
         db.session.commit()
 
         flash('Student enrolled successfully!', 'success')
         return redirect(url_for('students.records'))
 
-    return render_template('students/add.html',
-        strands=strands,
-        sections=sections
-    )
+    return render_template('students/add.html', strands=strands, sections=sections)
 
 
 # ─────────────────────────────────────────────
 # UPDATE — Edit student
+# Admin/staff only — updates student info and enrollment
 # ─────────────────────────────────────────────
-
 @students.route('/students/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit(id):
@@ -114,14 +110,15 @@ def edit(id):
     if current_user.role not in ['admin', 'staff']:
         abort(403)
 
-    student = Student.query.get_or_404(id)
+    student    = Student.query.get_or_404(id)
     enrollment = Enrollment.query.filter_by(
         student_id=id
     ).order_by(Enrollment.date_applied.desc()).first()
-    strands = Strand.query.filter_by(is_active=True).all()
-    sections = Section.query.filter_by(is_active=True).all()
+    strands    = Strand.query.filter_by(is_active=True).all()
+    sections   = Section.query.filter_by(is_active=True).all()
 
     if request.method == 'POST':
+        # Update student fields
         student.last_name             = request.form.get('last_name')
         student.first_name            = request.form.get('first_name')
         student.middle_name           = request.form.get('middle_name')
@@ -136,6 +133,7 @@ def edit(id):
         student.guardian_contact      = request.form.get('guardian_contact')
         student.guardian_occupation   = request.form.get('guardian_occupation')
 
+        # Update strand/section if enrollment exists
         if enrollment:
             strand_id  = request.form.get('strand_id')
             section_id = request.form.get('section_id')
@@ -160,8 +158,8 @@ def edit(id):
 
 # ─────────────────────────────────────────────
 # DELETE — Remove student
+# Admin/staff only — deletes student and all their enrollments
 # ─────────────────────────────────────────────
-
 @students.route('/students/<int:id>/delete', methods=['POST'])
 @login_required
 def delete(id):
@@ -173,7 +171,7 @@ def delete(id):
         abort(403)
 
     student = Student.query.get_or_404(id)
-    Enrollment.query.filter_by(student_id=id).delete()
+    Enrollment.query.filter_by(student_id=id).delete()  # Remove enrollments first
     db.session.delete(student)
     db.session.commit()
     flash('Student deleted!', 'success')
@@ -182,8 +180,8 @@ def delete(id):
 
 # ─────────────────────────────────────────────
 # SEARCH — Search students
+# Filter by name/LRN, strand, and enrollment status
 # ─────────────────────────────────────────────
-
 @students.route('/students/search')
 @login_required
 def search():
@@ -203,6 +201,7 @@ def search():
     if q or selected_strand or selected_status:
         query = Student.query
 
+        # Search by name or LRN
         if q:
             query = query.filter(
                 db.or_(
@@ -212,6 +211,7 @@ def search():
                 )
             )
 
+        # Filter by strand or status (joins enrollment table)
         if selected_strand or selected_status:
             query = query.join(Enrollment, Enrollment.student_id == Student.id)
             if selected_strand:
@@ -231,21 +231,25 @@ def search():
 
 
 # ─────────────────────────────────────────────
-# STUDENT PORTAL — Student views own profile
+# MY PROFILE — Student views their own profile
 # ─────────────────────────────────────────────
-
 @students.route('/students/my-profile')
 @login_required
 def my_profile():
     return render_template('students/profile.html')
 
 
+# ─────────────────────────────────────────────
+# PORTAL — Student homepage after login
+# Shows student info and their latest enrollment status
+# ─────────────────────────────────────────────
 @students.route('/portal')
 @login_required
 def portal():
     from app.models.student import Student
     from app.models.enrollment import Enrollment
 
+    # Only students can access the portal
     if current_user.role != 'student':
         return redirect(url_for('dashboard.index'))
 
@@ -254,6 +258,7 @@ def portal():
         flash('No student record linked to your account.', 'error')
         return redirect(url_for('auth.login'))
 
+    # Get the most recent enrollment record
     enrollment = Enrollment.query.filter_by(
         student_id=student.id
     ).order_by(Enrollment.date_applied.desc()).first()
@@ -265,9 +270,9 @@ def portal():
 
 
 # ─────────────────────────────────────────────
-# ENROLL — Student self-enrollment
+# ENROLL — Student self-enrollment form
+# Students pick their strand and section
 # ─────────────────────────────────────────────
-
 @students.route('/enroll', methods=['GET', 'POST'])
 @login_required
 def enroll():
@@ -277,6 +282,7 @@ def enroll():
     from app.models.section import Section
     from app.models.enrollment import Enrollment
 
+    # Only students can enroll themselves
     if current_user.role != 'student':
         return redirect(url_for('dashboard.index'))
 
@@ -285,6 +291,7 @@ def enroll():
         flash('No student record linked to your account.', 'error')
         return redirect(url_for('auth.login'))
 
+    # Block duplicate enrollment
     existing = Enrollment.query.filter_by(student_id=student.id).first()
     if existing:
         flash('You already have an enrollment record.', 'error')
@@ -297,23 +304,20 @@ def enroll():
         strand_id  = request.form.get('strand_id')
         section_id = request.form.get('section_id')
 
+        # Both strand and section are required
         if not strand_id or not section_id:
             flash('Please select both a strand and section.', 'error')
             return render_template('students/enroll.html',
-                strands=strands,
-                sections=sections,
-                student=student
-            )
+                strands=strands, sections=sections, student=student)
 
+        # Check if the section is already full
         section = Section.query.get(section_id)
         if section and section.is_full():
             flash('That section is already full. Please choose another.', 'error')
             return render_template('students/enroll.html',
-                strands=strands,
-                sections=sections,
-                student=student
-            )
+                strands=strands, sections=sections, student=student)
 
+        # Submit enrollment as pending
         enrollment = Enrollment(
             student_id=student.id,
             strand_id=int(strand_id) if strand_id else None,
@@ -328,7 +332,4 @@ def enroll():
         return redirect(url_for('students.portal'))
 
     return render_template('students/enroll.html',
-        strands=strands,
-        sections=sections,
-        student=student
-    )
+        strands=strands, sections=sections, student=student)
