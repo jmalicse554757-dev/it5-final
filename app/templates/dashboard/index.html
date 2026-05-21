@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
@@ -15,9 +14,7 @@
     <div class="greeting-title">Welcome back, {{ current_user.full_name }}!</div>
     <div class="greeting-sub">Here is your enrollment overview for S.Y. 2024–2025.</div>
   </div>
-  <div class="greeting-icon">
-    <i class="bi bi-mortarboard-fill"></i>
-  </div>
+  <div class="greeting-icon"><i class="bi bi-mortarboard-fill"></i></div>
 </div>
 
 <div class="stat-grid">
@@ -27,11 +24,12 @@
     <div class="stat-val">{{ total_enrolled }}</div>
     <div class="stat-note">All strands combined</div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card" style="cursor:pointer" onclick="window.location='/pending'">
     <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
     <div class="stat-label">Pending</div>
-    <div class="stat-val" style="color:var(--amber)">{{ total_pending }}</div>
-    <div class="stat-note">Awaiting approval</div>
+    <!-- Live badge — auto refreshes every 30 seconds -->
+    <div class="stat-val" style="color:var(--amber)" id="livePending">{{ total_pending }}</div>
+    <div class="stat-note">Click to review</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon green"><i class="bi bi-diagram-3-fill"></i></div>
@@ -51,30 +49,37 @@
   <div class="card">
     <div class="card-header">
       <div class="card-title">Enrollment by Strand</div>
+      <!-- Strand filter -->
+      <select class="form-control" id="strandFilter" onchange="filterStrand()" style="width:130px;height:32px;font-size:12px">
+        <option value="all">All Strands</option>
+        {% for strand in strand_data %}
+        <option value="{{ strand.code }}">{{ strand.code }}</option>
+        {% endfor %}
+      </select>
     </div>
     {% for strand in strand_data %}
-    <div class="prog-row">
+    {% set max_count = strand_data|map(attribute='count')|max if strand_data else 1 %}
+    {% set pct = ((strand.count / max_count) * 100)|int if max_count > 0 else 0 %}
+    <div class="prog-row strand-row" data-strand="{{ strand.code }}">
       <div class="prog-meta">
-        <span>{{ strand.code }}</span>
+        <span style="font-weight:600">{{ strand.code }}
+          <span style="font-weight:300;color:var(--muted);font-size:11px"> — {{ strand.full_name }}</span>
+        </span>
         <span>{{ strand.count }} students</span>
       </div>
       <div class="prog-bg">
-        <div class="prog-fill" style="width:{{ [strand.percent|default(strand.count), 1]|max }}%"></div>
+        <div class="prog-fill" style="width:{{ pct }}%"></div>
       </div>
     </div>
     {% else %}
-    <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">
-      No enrollment data yet
-    </div>
+    <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">No enrollment data yet</div>
     {% endfor %}
   </div>
 
   <div class="card">
     <div class="card-header">
       <div class="card-title">Recent Enrollments</div>
-      <a class="btn btn-sm" href="/students">
-        <i class="bi bi-arrow-right"></i> View all
-      </a>
+      <a class="btn btn-sm" href="/students"><i class="bi bi-arrow-right"></i> View all</a>
     </div>
     {% for e in recent %}
     <div class="recent-row">
@@ -82,15 +87,41 @@
       <div>
         <div class="r-name">{{ e.student.get_full_name() }}</div>
         <div class="r-sub">
+          {% if e.strand %}
           <span class="badge badge-{{ e.strand.code|lower }}">{{ e.strand.code }}</span>
+          {% endif %}
+          <span style="font-size:11px;color:var(--muted);margin-left:4px">
+            {{ e.date_enrolled.strftime('%b %d') if e.date_enrolled else '' }}
+          </span>
         </div>
       </div>
     </div>
     {% else %}
-    <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">
-      No recent enrollments
-    </div>
+    <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">No recent enrollments</div>
     {% endfor %}
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Live pending count — refreshes every 30 seconds
+function refreshPending() {
+  fetch('/api/pending-count')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('livePending').textContent = data.count;
+    })
+    .catch(() => {});
+}
+setInterval(refreshPending, 30000);
+
+// Strand filter on progress bars
+function filterStrand() {
+  const val = document.getElementById('strandFilter').value;
+  document.querySelectorAll('.strand-row').forEach(row => {
+    row.style.display = val === 'all' || row.dataset.strand === val ? '' : 'none';
+  });
+}
+</script>
 {% endblock %}

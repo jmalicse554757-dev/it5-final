@@ -5,6 +5,7 @@
 
 from app import db
 
+
 class Strand(db.Model):
     __tablename__ = 'strands'
 
@@ -14,7 +15,9 @@ class Strand(db.Model):
     description = db.Column(db.Text)
     is_active   = db.Column(db.Boolean, default=True)
 
-    sections = db.relationship('Section', backref='strand', lazy=True)
+    sections    = db.relationship('Section', backref='strand', lazy=True)
+    # back_populates matches the strand relationship in Enrollment model
+    enrollments = db.relationship('Enrollment', back_populates='strand', lazy=True)
 
     def __repr__(self):
         return f'<Strand {self.code}>'

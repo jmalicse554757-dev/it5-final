@@ -110,14 +110,30 @@
               {{ section.school_year or '2024–2025' }}
             </span>
           </td>
+
           <td>
-            <div style="font-size:13px;font-weight:600;margin-bottom:5px">{{ enrolled }}/{{ section.max_capacity }}</div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:5px">
+              {{ enrolled }}/{{ section.max_capacity }}
+              {% if pct >= 100 %}
+              <span class="badge badge-rejected" style="font-size:10px;margin-left:4px">
+                <i class="bi bi-x-circle-fill" style="font-size:9px"></i> Full
+              </span>
+              {% elif pct >= 80 %}
+              <span class="badge badge-pending" style="font-size:10px;margin-left:4px">
+                <i class="bi bi-exclamation-triangle-fill" style="font-size:9px"></i> Almost Full
+              </span>
+              {% endif %}
+            </div>
             <div style="height:6px;background:var(--border);border-radius:10px;overflow:hidden;width:100px">
               <div style="height:100%;border-radius:10px;width:{{ [pct,100]|min }}%;
                 background:{% if pct >= 90 %}var(--red){% elif pct >= 70 %}var(--amber){% else %}linear-gradient(90deg,var(--teal),var(--blue)){% endif %}">
               </div>
             </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px">
+              {{ section.max_capacity - enrolled }} slots left
+            </div>
           </td>
+
           <td>
             {% if enrolled >= section.max_capacity %}
             <span class="badge badge-rejected"><i class="bi bi-x-circle-fill" style="font-size:10px"></i> Full</span>

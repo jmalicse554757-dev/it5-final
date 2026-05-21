@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}{{ student.get_full_name() }}{% endblock %}
+{% block page_title %}Student Profile{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-sm" href="/students" style="background:var(--bg);border:1px solid var(--border);color:var(--text)">
+  <i class="bi bi-arrow-left"></i> Back to Records
+</a>
+<a class="btn btn-sm" href="/students/{{ student.id }}/edit"
+   style="background:var(--navy-top);color:var(--white);border:none">
+  <i class="bi bi-pencil-fill"></i> Edit
+</a>
+<!-- Print button triggers the print stylesheet below -->
+<button class="btn btn-sm" onclick="window.print()"
+   style="background:var(--green-bg);color:var(--green);border-color:#BBF7D0">
+  <i class="bi bi-printer-fill"></i> Print Slip
+</button>
+{% endblock %}
+
+{% block content %}
+
+<!-- Screen view — hidden on print -->
+<div class="view-wrap">
+
+  <!-- Student header card -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="width:64px;height:64px;border-radius:50%;
+        background:linear-gradient(135deg,var(--teal),var(--blue));
+        display:flex;align-items:center;justify-content:center;
+        font-size:22px;font-weight:700;color:var(--white);flex-shrink:0">
+        {{ student.first_name[0] }}{{ student.last_name[0] }}
+      </div>
+      <div>
+        <div style="font-size:18px;font-weight:700;color:var(--navy-mid)">
+          {{ student.get_full_name() }}
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">
+          LRN: {{ student.lrn }}
+        </div>
+        <div style="margin-top:6px">
+          {% if enrollment %}
+          <span class="badge badge-{{ enrollment.status }}">
+            {{ enrollment.status|title }}
+          </span>
+          {% if enrollment.strand %}
+          <span class="badge badge-{{ enrollment.strand.code|lower }}" style="margin-left:4px">
+            {{ enrollment.strand.code }}
+          </span>
+          {% endif %}
+          {% else %}
+          <span style="font-size:12px;color:var(--muted)">No enrollment record</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal info -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div class="card-title"><i class="bi bi-person-fill"></i> Personal Information</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Date of Birth</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">
+          {{ student.date_of_birth.strftime('%B %d, %Y') if student.date_of_birth else '—' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Sex</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ student.sex or '—' }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Contact Number</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ student.contact_number or '—' }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Email</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ student.email or '—' }}</div>
+      </div>
+      <div style="grid-column:2/-1">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Address</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ student.address or '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guardian info -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div class="card-title"><i class="bi bi-people-fill"></i> Guardian Information</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Guardian Name</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ student.guardian_name or '—' }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Relationship</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ student.guardian_relationship or '—' }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Guardian Contact</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ student.guardian_contact or '—' }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Occupation</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ student.guardian_occupation or '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enrollment details -->
+  {% if enrollment %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div class="card-title"><i class="bi bi-mortarboard-fill"></i> Enrollment Details</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Strand</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">
+          {{ enrollment.strand.code + ' — ' + enrollment.strand.full_name if enrollment.strand else '—' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Section</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ enrollment.section.name if enrollment.section else '—' }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Grade Level</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">
+          {{ 'Grade ' + enrollment.section.grade_level|string if enrollment.section else '—' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Status</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ enrollment.status|title }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Date Applied</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ enrollment.date_applied.strftime('%B %d, %Y') }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">School Year</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">{{ enrollment.school_year or '2024-2025' }}</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Print-only enrollment slip — hidden on screen, shown on print -->
+<div class="print-slip">
+  <div class="slip-header">
+    <div class="slip-logo">EnrollEase</div>
+    <div class="slip-school">Davao City National High School</div>
+    <div class="slip-title">Senior High School Enrollment Slip — S.Y. 2024-2025</div>
+  </div>
+
+  <div class="slip-body">
+    <table class="slip-table">
+      <tr>
+        <td class="slip-label">Full Name</td>
+        <td class="slip-val">{{ student.get_full_name() }}</td>
+        <td class="slip-label">LRN</td>
+        <td class="slip-val">{{ student.lrn }}</td>
+      </tr>
+      <tr>
+        <td class="slip-label">Date of Birth</td>
+        <td class="slip-val">{{ student.date_of_birth.strftime('%B %d, %Y') if student.date_of_birth else '—' }}</td>
+        <td class="slip-label">Sex</td>
+        <td class="slip-val">{{ student.sex or '—' }}</td>
+      </tr>
+      <tr>
+        <td class="slip-label">Contact</td>
+        <td class="slip-val">{{ student.contact_number or '—' }}</td>
+        <td class="slip-label">Guardian</td>
+        <td class="slip-val">{{ student.guardian_name or '—' }}</td>
+      </tr>
+      {% if enrollment %}
+      <tr>
+        <td class="slip-label">Strand</td>
+        <td class="slip-val">{{ enrollment.strand.code + ' — ' + enrollment.strand.full_name if enrollment.strand else '—' }}</td>
+        <td class="slip-label">Section</td>
+        <td class="slip-val">{{ enrollment.section.name if enrollment.section else '—' }}</td>
+      </tr>
+      <tr>
+        <td class="slip-label">Grade Level</td>
+        <td class="slip-val">{{ 'Grade ' + enrollment.section.grade_level|string if enrollment.section else '—' }}</td>
+        <td class="slip-label">Status</td>
+        <td class="slip-val">{{ enrollment.status|title }}</td>
+      </tr>
+      <tr>
+        <td class="slip-label">Date Applied</td>
+        <td class="slip-val">{{ enrollment.date_applied.strftime('%B %d, %Y') }}</td>
+        <td class="slip-label">School Year</td>
+        <td class="slip-val">{{ enrollment.school_year or '2024-2025' }}</td>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
+
+  <div class="slip-footer">
+    <div class="slip-sig">
+      <div class="slip-sig-line"></div>
+      <div class="slip-sig-label">Registrar's Signature</div>
+    </div>
+    <div class="slip-sig">
+      <div class="slip-sig-line"></div>
+      <div class="slip-sig-label">Student's Signature</div>
+    </div>
+    <div class="slip-sig">
+      <div class="slip-sig-line"></div>
+      <div class="slip-sig-label">Date</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:9px;color:#999;margin-top:16px">
+    Generated by EnrollEase — This slip is for enrollment reference only.
+  </div>
+</div>
+
+<style>
+/* Screen styles */
+.print-slip { display: none; }
+
+/* Print styles — only the slip shows, everything else hides */
+@media print {
+  /* Hide the entire page layout */
+  aside, .topbar, .page-content > .flash { display: none !important; }
+  main { margin: 0 !important; padding: 0 !important; }
+  .view-wrap { display: none !important; }
+  .print-slip { display: block !important; }
+
+  .slip-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .slip-logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: #000;
+  }
+  .slip-school {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+  }
+  .slip-title {
+    font-size: 11px;
+    color: #555;
+    margin-top: 4px;
+  }
+  .slip-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 32px;
+  }
+  .slip-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+  }
+  .slip-label {
+    font-weight: 700;
+    background: #f5f5f5;
+    width: 18%;
+    color: #333;
+  }
+  .slip-val {
+    color: #000;
+    width: 32%;
+  }
+  .slip-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    gap: 20px;
+  }
+  .slip-sig { flex: 1; text-align: center; }
+  .slip-sig-line {
+    height: 1px;
+    background: #000;
+    margin-bottom: 6px;
+  }
+  .slip-sig-label {
+    font-size: 10px;
+    color: #555;
+  }
+}
+</style>
+{% endblock %}

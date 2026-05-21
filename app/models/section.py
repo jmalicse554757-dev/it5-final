@@ -5,6 +5,7 @@
 
 from app import db
 
+
 class Section(db.Model):
     __tablename__ = 'sections'
 
@@ -16,18 +17,15 @@ class Section(db.Model):
     school_year  = db.Column(db.String(20), default='2024-2025')
     is_active    = db.Column(db.Boolean, default=True)
 
-    enrollments = db.relationship('Enrollment', backref='section', lazy=True)
+    # back_populates matches the section relationship in Enrollment model
+    enrollments  = db.relationship('Enrollment', back_populates='section', lazy=True)
 
     def current_count(self):
-        """Returns the number of enrolled (approved) students in this section"""
-        from app.models.enrollment import Enrollment
-        return Enrollment.query.filter_by(
-            section_id=self.id,
-            status='enrolled'
-        ).count()
+        # Counts enrolled students using already-loaded relationship — avoids extra DB queries
+        return sum(1 for e in self.enrollments if e.status == 'enrolled')
 
     def is_full(self):
-        """Returns True if the section has reached max capacity"""
+        # Returns True if section has hit max capacity
         return self.current_count() >= self.max_capacity
 
     def __repr__(self):

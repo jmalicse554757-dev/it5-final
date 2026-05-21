@@ -7,6 +7,7 @@
 from app import db
 from datetime import datetime
 
+
 class Enrollment(db.Model):
     __tablename__ = 'enrollments'
 
@@ -21,7 +22,9 @@ class Enrollment(db.Model):
     remarks       = db.Column(db.Text)                                 # Optional rejection note
     enrolled_by   = db.Column(db.Integer, db.ForeignKey('users.id'))  # Staff who approved
 
-    strand = db.relationship('Strand', lazy=True, overlaps="enrollments")
+    # back_populates keeps strand and section relationships clean and conflict-free
+    strand  = db.relationship('Strand',  back_populates='enrollments', lazy=True)
+    section = db.relationship('Section', back_populates='enrollments', lazy=True)
 
     def __repr__(self):
         return f'<Enrollment {self.id} - {self.status}>'

@@ -194,9 +194,9 @@ body {
   text-transform: uppercase;
   letter-spacing: .05em;
 }
-.role-pill.role-admin { background: rgba(14,165,200,0.2); color: var(--teal-light); }
-.role-pill.role-staff { background: rgba(99,102,241,0.2); color: #A5B4FC; }
-.role-pill.role-student { background: rgba(34,197,94,0.2); color: #86EFAC; }
+.role-pill.role-admin   { background: rgba(14,165,200,0.2);  color: var(--teal-light); }
+.role-pill.role-staff   { background: rgba(99,102,241,0.2);  color: #A5B4FC; }
+.role-pill.role-student { background: rgba(34,197,94,0.2);   color: #86EFAC; }
 
 .logout-link { color: rgba(248,113,113,0.7) !important; }
 .logout-link:hover { color: #FCA5A5 !important; background: rgba(248,113,113,0.08) !important; }
@@ -277,16 +277,8 @@ main {
   padding: 0;
   font-size: 15px;
 }
-.flash-error {
-  background: var(--red-bg);
-  color: var(--red);
-  border: 1px solid #FECACA;
-}
-.flash-success {
-  background: var(--green-bg);
-  color: var(--green);
-  border: 1px solid #BBF7D0;
-}
+.flash-error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #FECACA; }
+.flash-success { background: var(--green-bg); color: var(--green); border: 1px solid #BBF7D0; }
 
 /* ================================
    BUTTONS
@@ -317,11 +309,11 @@ main {
   border: none;
   box-shadow: 0 3px 10px rgba(14,165,200,0.25);
 }
-.btn-primary:hover { 
+.btn-primary:hover {
   background: linear-gradient(135deg, var(--teal), var(--blue)) !important;
   color: var(--white) !important;
-  opacity: .9; 
-  transform: translateY(-1px); 
+  opacity: .9;
+  transform: translateY(-1px);
 }
 
 .btn-danger { background: var(--red-bg); color: var(--red); border-color: #FECACA; }
@@ -382,10 +374,10 @@ main {
   font-size: 17px;
   margin-bottom: 14px;
 }
-.stat-icon.blue { background: #EBF3FB; color: var(--navy-top); }
+.stat-icon.blue  { background: #EBF3FB;        color: var(--navy-top); }
 .stat-icon.amber { background: var(--amber-bg); color: var(--amber); }
 .stat-icon.green { background: var(--green-bg); color: var(--green); }
-.stat-icon.red { background: var(--red-bg); color: var(--red); }
+.stat-icon.red   { background: var(--red-bg);   color: var(--red); }
 
 .stat-label {
   font-size: 11px;
@@ -461,14 +453,14 @@ tbody tr:hover { background: #FAFBFC; }
   font-weight: 700;
   letter-spacing: .03em;
 }
-.badge-stem    { background: var(--green-bg); color: var(--green); }
-.badge-abm     { background: #EBF3FB; color: var(--navy-top); }
-.badge-humss   { background: var(--amber-bg); color: var(--amber); }
-.badge-tvl     { background: var(--pink-bg); color: var(--pink); }
-.badge-gas     { background: var(--teal-bg); color: var(--teal-dark); }
-.badge-pending  { background: var(--amber-bg); color: var(--amber); }
-.badge-enrolled { background: var(--green-bg); color: var(--green); }
-.badge-rejected { background: var(--red-bg); color: var(--red); }
+.badge-stem     { background: var(--green-bg); color: var(--green); }
+.badge-abm      { background: #EBF3FB;         color: var(--navy-top); }
+.badge-humss    { background: var(--amber-bg);  color: var(--amber); }
+.badge-tvl      { background: var(--pink-bg);   color: var(--pink); }
+.badge-gas      { background: var(--teal-bg);   color: var(--teal-dark); }
+.badge-pending  { background: var(--amber-bg);  color: var(--amber); }
+.badge-enrolled { background: var(--green-bg);  color: var(--green); }
+.badge-rejected { background: var(--red-bg);    color: var(--red); }
 
 /* ================================
    FORMS
@@ -504,7 +496,7 @@ tbody tr:hover { background: #FAFBFC; }
 }
 
 textarea.form-control { height: auto; padding: 10px 13px; resize: vertical; }
-select.form-control { cursor: pointer; }
+select.form-control   { cursor: pointer; }
 
 .form-hint { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 300; }
 
@@ -609,7 +601,7 @@ select.form-control { cursor: pointer; }
 }
 
 .r-name { font-size: 13px; font-weight: 600; color: var(--text); }
-.r-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.r-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
 /* ================================
    SCROLLBAR
@@ -617,3 +609,4 @@ select.form-control { cursor: pointer; }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+ 

@@ -1,12 +1,23 @@
 # ============================================================
-# students.py — Students Blueprint
+# routes/students.py — Students Blueprint
 # Handles: CRUD for student records, search, portal, enrollment
 # ============================================================
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
+import os
+from werkzeug.utils import secure_filename
 
 students = Blueprint('students', __name__)
+
+# Folder where student photos are saved — uses absolute path to avoid Windows path issues
+UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'static', 'uploads', 'photos')
+UPLOAD_FOLDER = os.path.normpath(UPLOAD_FOLDER)
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    # Check that the file has an allowed image extension
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # ─────────────────────────────────────────────
@@ -32,6 +43,7 @@ def records():
 # ─────────────────────────────────────────────
 # CREATE — Add student
 # Admin/staff only — adds student + creates enrollment record
+# Logs the action to the activity log after a successful save
 # ─────────────────────────────────────────────
 @students.route('/students/add', methods=['GET', 'POST'])
 @login_required
@@ -41,6 +53,7 @@ def add():
     from app.models.enrollment import Enrollment
     from app.models.strand import Strand
     from app.models.section import Section
+    from app.utils import log_action
 
     if current_user.role not in ['admin', 'staff']:
         abort(403)
@@ -80,14 +93,30 @@ def add():
         section_id = request.form.get('section_id')
         enrollment = Enrollment(
             student_id=student.id,
-            strand_id=int(strand_id) if strand_id else None,
+            strand_id=int(strand_id)   if strand_id  else None,
             section_id=int(section_id) if section_id else None,
             school_year='2024-2025',
             status='pending'
         )
         db.session.add(enrollment)
-        db.session.commit()
 
+        # Save photo if one was uploaded — named by student ID to avoid collisions
+        photo = request.files.get('photo')
+        if photo and photo.filename and allowed_file(photo.filename):
+            ext      = photo.filename.rsplit('.', 1)[1].lower()
+            filename = secure_filename(f'student_{student.id}.{ext}')
+            photo.save(os.path.join(UPLOAD_FOLDER, filename))
+            student.photo = filename
+
+        # Log the addition before committing so it's in the same transaction
+        log_action(
+            user_id=current_user.id,
+            action='added student',
+            detail=f'{student.last_name}, {student.first_name} (LRN: {student.lrn})',
+            ip=request.remote_addr
+        )
+
+        db.session.commit()
         flash('Student enrolled successfully!', 'success')
         return redirect(url_for('students.records'))
 
@@ -97,6 +126,7 @@ def add():
 # ─────────────────────────────────────────────
 # UPDATE — Edit student
 # Admin/staff only — updates student info and enrollment
+# LRN is intentionally excluded — it cannot be changed after creation
 # ─────────────────────────────────────────────
 @students.route('/students/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -118,7 +148,7 @@ def edit(id):
     sections   = Section.query.filter_by(is_active=True).all()
 
     if request.method == 'POST':
-        # Update student fields
+        # Update student fields — LRN is NOT updated here, it's permanent
         student.last_name             = request.form.get('last_name')
         student.first_name            = request.form.get('first_name')
         student.middle_name           = request.form.get('middle_name')
@@ -132,6 +162,19 @@ def edit(id):
         student.guardian_relationship = request.form.get('guardian_relationship')
         student.guardian_contact      = request.form.get('guardian_contact')
         student.guardian_occupation   = request.form.get('guardian_occupation')
+
+        # Save photo if a new one was uploaded — overwrites the old file
+        photo = request.files.get('photo')
+        print(f"DEBUG photo: {photo}, filename: {photo.filename if photo else 'none'}")
+        print(f"DEBUG UPLOAD_FOLDER: {UPLOAD_FOLDER}")
+        if photo and photo.filename and allowed_file(photo.filename):
+            ext      = photo.filename.rsplit('.', 1)[1].lower()
+            filename = secure_filename(f'student_{student.id}.{ext}')
+            save_path = os.path.join(UPLOAD_FOLDER, filename)
+            print(f"DEBUG saving to: {save_path}")
+            photo.save(save_path)
+            student.photo = filename
+            print(f"DEBUG student.photo set to: {student.photo}")
 
         # Update strand/section if enrollment exists
         if enrollment:
@@ -159,6 +202,7 @@ def edit(id):
 # ─────────────────────────────────────────────
 # DELETE — Remove student
 # Admin/staff only — deletes student and all their enrollments
+# Logs the deletion before the record is wiped so we still have the name/LRN
 # ─────────────────────────────────────────────
 @students.route('/students/<int:id>/delete', methods=['POST'])
 @login_required
@@ -166,15 +210,30 @@ def delete(id):
     from app import db
     from app.models.student import Student
     from app.models.enrollment import Enrollment
+    from app.utils import log_action
 
     if current_user.role not in ['admin', 'staff']:
         abort(403)
 
     student = Student.query.get_or_404(id)
+
+    # Capture name and LRN before deleting — we can't read them after
+    name = student.get_full_name()
+    lrn  = student.lrn
+
+    # Log before the delete so the data is still available
+    log_action(
+        user_id=current_user.id,
+        action='deleted student',
+        detail=f'{name} (LRN: {lrn})',
+        ip=request.remote_addr
+    )
+
     Enrollment.query.filter_by(student_id=id).delete()  # Remove enrollments first
     db.session.delete(student)
     db.session.commit()
-    flash('Student deleted!', 'success')
+
+    flash(f'{name} has been deleted.', 'success')
     return redirect(url_for('students.records'))
 
 
@@ -211,11 +270,12 @@ def search():
                 )
             )
 
-        # Filter by strand or status (joins enrollment table)
+        # Filter by strand or status — join enrollment table
         if selected_strand or selected_status:
             query = query.join(Enrollment, Enrollment.student_id == Student.id)
+            # Cast to int so MySQL integer column comparison works correctly
             if selected_strand:
-                query = query.filter(Enrollment.strand_id == selected_strand)
+                query = query.filter(Enrollment.strand_id == int(selected_strand))
             if selected_status:
                 query = query.filter(Enrollment.status == selected_status)
 
@@ -248,6 +308,7 @@ def my_profile():
 def portal():
     from app.models.student import Student
     from app.models.enrollment import Enrollment
+    from flask_login import logout_user
 
     # Only students can access the portal
     if current_user.role != 'student':
@@ -255,7 +316,9 @@ def portal():
 
     student = Student.query.filter_by(user_id=current_user.id).first()
     if not student:
-        flash('No student record linked to your account.', 'error')
+        # Log them out first to prevent redirect loop
+        logout_user()
+        flash('No student record linked to your account. Contact your administrator.', 'error')
         return redirect(url_for('auth.login'))
 
     # Get the most recent enrollment record
@@ -310,8 +373,8 @@ def enroll():
             return render_template('students/enroll.html',
                 strands=strands, sections=sections, student=student)
 
-        # Check if the section is already full
-        section = Section.query.get(section_id)
+        # Cast to int so the DB lookup works correctly
+        section = Section.query.get(int(section_id))
         if section and section.is_full():
             flash('That section is already full. Please choose another.', 'error')
             return render_template('students/enroll.html',
@@ -320,8 +383,8 @@ def enroll():
         # Submit enrollment as pending
         enrollment = Enrollment(
             student_id=student.id,
-            strand_id=int(strand_id) if strand_id else None,
-            section_id=int(section_id) if section_id else None,
+            strand_id=int(strand_id),
+            section_id=int(section_id),
             school_year='2024-2025',
             status='pending'
         )
@@ -333,3 +396,29 @@ def enroll():
 
     return render_template('students/enroll.html',
         strands=strands, sections=sections, student=student)
+
+
+# ─────────────────────────────────────────────
+# VIEW — Read-only student profile
+# Admin/staff only — shows full profile with print slip option
+# ─────────────────────────────────────────────
+@students.route('/students/<int:id>/view')
+@login_required
+def view(id):
+    from app.models.student import Student
+    from app.models.enrollment import Enrollment
+
+    if current_user.role not in ['admin', 'staff']:
+        abort(403)
+
+    student = Student.query.get_or_404(id)
+
+    # Get the most recent enrollment for this student
+    enrollment = Enrollment.query.filter_by(
+        student_id=student.id
+    ).order_by(Enrollment.date_applied.desc()).first()
+
+    return render_template('students/view.html',
+        student=student,
+        enrollment=enrollment
+    )

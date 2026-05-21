@@ -6,6 +6,7 @@
 from app import db
 from datetime import datetime
 
+
 class Student(db.Model):
     __tablename__ = 'students'
 
@@ -21,6 +22,7 @@ class Student(db.Model):
     email          = db.Column(db.String(120))
     address        = db.Column(db.Text)
 
+    photo          = db.Column(db.String(255))                    # Stored filename, e.g. student_12.jpg
     # Guardian information
     guardian_name         = db.Column(db.String(150))
     guardian_relationship = db.Column(db.String(50))
@@ -34,9 +36,9 @@ class Student(db.Model):
     enrollments = db.relationship('Enrollment', backref='student', lazy=True)
 
     def get_full_name(self):
-        """Returns formatted full name: Last, First Middle"""
-        middle = self.middle_name or ''
-        return f"{self.last_name}, {self.first_name} {middle}".strip()
+        # Fixed: no trailing space when middle name is empty
+        first_middle = f"{self.first_name} {self.middle_name}".strip() if self.middle_name else self.first_name
+        return f"{self.last_name}, {first_middle}"
 
     def __repr__(self):
         return f'<Student {self.lrn}>'

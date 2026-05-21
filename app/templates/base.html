@@ -23,20 +23,24 @@
   </div>
 
   <nav class="sidebar-nav">
+
+    <!-- ================================
+         SHARED — Admin & Staff
+    ================================ -->
     <div class="nav-label">Main</div>
     <a class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}" href="/dashboard">
       <i class="bi bi-grid-1x2-fill"></i> Dashboard
     </a>
 
     <div class="nav-label">Enrollment</div>
-    <a class="nav-link {% if request.endpoint == 'students.add' %}active{% endif %}" href="/students/add">
-      <i class="bi bi-person-plus-fill"></i> Add Student
-    </a>
     <a class="nav-link {% if request.endpoint == 'students.records' %}active{% endif %}" href="/students">
       <i class="bi bi-people-fill"></i> View Records
     </a>
     <a class="nav-link {% if request.endpoint == 'students.search' %}active{% endif %}" href="/students/search">
       <i class="bi bi-search"></i> Search Student
+    </a>
+    <a class="nav-link {% if request.endpoint == 'students.add' %}active{% endif %}" href="/students/add">
+      <i class="bi bi-person-plus-fill"></i> Add Student
     </a>
     <a class="nav-link {% if request.endpoint == 'enrollment.pending' %}active{% endif %}" href="/pending">
       <i class="bi bi-hourglass-split"></i> Pending
@@ -44,22 +48,48 @@
       <span class="nav-badge">{{ total_pending }}</span>
       {% endif %}
     </a>
-
-    <div class="nav-label">Management</div>
     <a class="nav-link {% if request.endpoint == 'enrollment.assign' %}active{% endif %}" href="/assign">
       <i class="bi bi-diagram-3-fill"></i> Assign Strand & Section
     </a>
+
+    <!-- ================================
+         ADMIN ONLY
+    ================================ -->
+    {% if current_user.role == 'admin' %}
+    <div class="nav-label">Management</div>
     <a class="nav-link {% if request.endpoint == 'admin_bp.section_students' %}active{% endif %}" href="/admin/section-students">
       <i class="bi bi-people-fill"></i> Students per Section
     </a>
     <a class="nav-link {% if request.endpoint == 'reports.index' %}active{% endif %}" href="/reports">
       <i class="bi bi-bar-chart-fill"></i> Generate Report
     </a>
-    {% if current_user.role in ['admin'] %}
     <a class="nav-link {% if request.endpoint == 'admin_bp.users' %}active{% endif %}" href="/admin/users">
       <i class="bi bi-shield-fill"></i> Manage Users
     </a>
+    <a class="nav-link {% if request.endpoint == 'admin_bp.strands' %}active{% endif %}" href="/admin/strands">
+      <i class="bi bi-bookmarks-fill"></i> Manage Strands
+    </a>
+    <a class="nav-link {% if request.endpoint == 'admin_bp.sections' %}active{% endif %}" href="/admin/sections">
+      <i class="bi bi-collection-fill"></i> Manage Sections
+    </a>
+    <!-- Activity log — admin only, tracks all system actions -->
+    <a class="nav-link {% if request.endpoint == 'admin_bp.activity_log' %}active{% endif %}" href="/admin/activity-log">
+      <i class="bi bi-clock-history"></i> Activity Log
+    </a>
+
+    <!-- ================================
+         STAFF ONLY
+    ================================ -->
+    {% elif current_user.role == 'staff' %}
+    <div class="nav-label">Reports</div>
+    <a class="nav-link {% if request.endpoint == 'reports.index' %}active{% endif %}" href="/reports">
+      <i class="bi bi-bar-chart-fill"></i> Generate Report
+    </a>
+    <a class="nav-link {% if request.endpoint == 'admin_bp.section_students' %}active{% endif %}" href="/admin/section-students">
+      <i class="bi bi-people-fill"></i> Students per Section
+    </a>
     {% endif %}
+
   </nav>
 
   <div class="sidebar-footer">
@@ -72,6 +102,7 @@
         </div>
       </div>
     </div>
+
     <a class="nav-link logout-link" href="/logout">
       <i class="bi bi-box-arrow-left"></i> Log Out
     </a>
@@ -107,10 +138,12 @@
 </main>
 
 <script>
+// Auto-dismiss flash messages after 3.5 seconds
 document.querySelectorAll('.flash').forEach(el => {
   setTimeout(() => el.style.opacity = '0', 3500);
   setTimeout(() => el.remove(), 4000);
 });
+
 </script>
 {% block scripts %}{% endblock %}
 </body>

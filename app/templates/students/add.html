@@ -29,7 +29,7 @@
   </div>
 </div>
 
-<form method="POST" action="/students/add" id="enrollForm">
+<form method="POST" action="/students/add" id="enrollForm" enctype="multipart/form-data">
 
   <!-- STEP 1 -->
   <div class="step-panel active" id="panel-1">
@@ -86,6 +86,7 @@
           <label class="form-label">Address</label>
           <textarea class="form-control" name="address" id="r_address" style="height:72px;resize:none"></textarea>
         </div>
+
       </div>
     </div>
     <div class="form-actions">
@@ -258,33 +259,59 @@
 <script>
 let currentStep = 1;
 
+// Store all section options once on page load so filtering doesn't lose them
+const allSections = [];
+document.querySelectorAll('.section-opt').forEach(opt => {
+  allSections.push({
+    value: opt.value,
+    text: opt.textContent,
+    strand: opt.dataset.strand,
+    grade: opt.dataset.grade
+  });
+});
+
 function goStep(n) {
+  // Validate before moving forward
   if (n > currentStep) {
     if (currentStep === 1) {
-      const req = ['r_last_name','r_first_name','r_lrn','r_dob','r_sex'];
+      const req = ['r_last_name','r_first_name','r_lrn','r_dob','r_sex','r_email'];
       for (let id of req) {
-        if (!document.getElementById(id).value.trim()) {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
           alert('Please fill in all required fields before continuing.');
+          el.focus();
           return;
         }
+      }
+      const lrn = document.getElementById('r_lrn').value.trim();
+      if (lrn.length !== 12 || isNaN(lrn)) {
+        alert('LRN must be exactly 12 digits.');
+        document.getElementById('r_lrn').focus();
+        return;
       }
     }
     if (currentStep === 3) {
       const strand = document.getElementById('strand_select').value;
       const section = document.getElementById('section_select').value;
-      if (!strand || !section) {
-        alert('Please select both a Strand and a Section before continuing.');
+      if (!strand) {
+        alert('Please select a Strand before continuing.');
+        return;
+      }
+      if (!section) {
+        alert('Please select a Section before continuing.');
         return;
       }
     }
   }
 
-  document.getElementById('panel-' + currentStep).classList.remove('active');
-  const si = document.getElementById('si-' + currentStep);
-  si.classList.remove('active');
-  if (n > currentStep) si.classList.add('done');
-  else si.classList.remove('done');
+  // Move step indicator
+  const prevSI = document.getElementById('si-' + currentStep);
+  prevSI.classList.remove('active');
+  if (n > currentStep) prevSI.classList.add('done');
+  else prevSI.classList.remove('done');
 
+  // Hide current panel, show next
+  document.getElementById('panel-' + currentStep).classList.remove('active');
   currentStep = n;
   document.getElementById('panel-' + currentStep).classList.add('active');
   document.getElementById('si-' + currentStep).classList.add('active');
@@ -296,27 +323,50 @@ function fillReview() {
   const fn = document.getElementById('r_first_name').value;
   const ln = document.getElementById('r_last_name').value;
   const mn = document.getElementById('r_middle_name').value;
-  document.getElementById('rev_name').textContent = ln + ', ' + fn + (mn ? ' ' + mn : '');
-  document.getElementById('rev_lrn').textContent = document.getElementById('r_lrn').value || '—';
-  document.getElementById('rev_dob').textContent = document.getElementById('r_dob').value || '—';
-  document.getElementById('rev_sex').textContent = document.getElementById('r_sex').value || '—';
+  document.getElementById('rev_name').textContent    = ln + ', ' + fn + (mn ? ' ' + mn : '');
+  document.getElementById('rev_lrn').textContent     = document.getElementById('r_lrn').value || '—';
+  document.getElementById('rev_dob').textContent     = document.getElementById('r_dob').value || '—';
+  document.getElementById('rev_sex').textContent     = document.getElementById('r_sex').value || '—';
   document.getElementById('rev_contact').textContent = document.getElementById('r_contact').value || '—';
-  document.getElementById('rev_guardian').textContent = document.getElementById('r_gname').value || '—';
+  document.getElementById('rev_guardian').textContent= document.getElementById('r_gname').value || '—';
+
   const ss = document.getElementById('strand_select');
   const sc = document.getElementById('section_select');
-  document.getElementById('rev_strand').textContent = ss.options[ss.selectedIndex]?.text || '—';
-  document.getElementById('rev_section').textContent = sc.options[sc.selectedIndex]?.text || '—';
+  document.getElementById('rev_strand').textContent  = ss.selectedIndex > 0 ? ss.options[ss.selectedIndex].text : '—';
+  document.getElementById('rev_section').textContent = sc.selectedIndex > 0 ? sc.options[sc.selectedIndex].text : '—';
+}
+
+// Show a live preview of the selected photo before form is submitted
+function previewPhoto(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('photoIcon').style.display = 'none';
+      const img = document.getElementById('photoImg');
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
 }
 
 function filterSections() {
   const strand = document.getElementById('strand_select').value;
-  const grade = document.getElementById('grade_select').value;
-  const opts = document.querySelectorAll('.section-opt');
-  const sel = document.getElementById('section_select');
+  const grade  = document.getElementById('grade_select').value;
+  const sel    = document.getElementById('section_select');
+
+  // Rebuild dropdown from the stored list every time
   sel.innerHTML = '<option value="">Select a section</option>';
-  opts.forEach(opt => {
-    if ((!strand || opt.dataset.strand === strand) && (!grade || opt.dataset.grade === grade)) {
-      sel.appendChild(opt.cloneNode(true));
+  allSections.forEach(s => {
+    const matchStrand = !strand || s.strand === strand;
+    const matchGrade  = !grade  || s.grade  === grade;
+    if (matchStrand && matchGrade) {
+      const opt = document.createElement('option');
+      opt.value          = s.value;
+      opt.textContent    = s.text;
+      opt.dataset.strand = s.strand;
+      opt.dataset.grade  = s.grade;
+      sel.appendChild(opt);
     }
   });
 }

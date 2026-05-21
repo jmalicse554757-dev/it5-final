@@ -76,7 +76,7 @@ def create_user():
         username=username,
         password_hash=hashed_pw,
         role=role,
-        active=True
+        is_active=True
     )
     db.session.add(new_user)
     db.session.commit()
@@ -289,3 +289,21 @@ def section_students():
         selected_grade=selected_grade,
         selected_year=selected_year
     )
+
+# --- Activity Log ---
+# Admin only — shows a paginated list of all recorded actions
+@admin.route('/admin/activity-log')
+@login_required
+def activity_log():
+    if current_user.role != 'admin':
+        flash('Only admins can view the activity log.', 'error')
+        return redirect(url_for('dashboard.index'))
+
+    from app.models.activity_log import ActivityLog
+
+    page = request.args.get('page', 1, type=int)
+    logs = ActivityLog.query.order_by(
+        ActivityLog.created_at.desc()
+    ).paginate(page=page, per_page=30)
+
+    return render_template('admin/activity_log.html', logs=logs)

@@ -15,10 +15,10 @@ basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 load_dotenv(os.path.join(basedir, '.env'))
 
 # --- Extensions (initialized without app, bound in create_app) ---
-db           = SQLAlchemy()
-bcrypt       = Bcrypt()
+db            = SQLAlchemy()
+bcrypt        = Bcrypt()
 login_manager = LoginManager()
-migrate      = Migrate()
+migrate       = Migrate()
 
 
 def create_app():
@@ -43,12 +43,13 @@ def create_app():
     login_manager.login_message_category = 'error'
 
     with app.app_context():
-        # Import models (required for migrations to detect them)
+        # Import models — required so Flask-Migrate can detect all tables
         from app.models.user import User
         from app.models.student import Student
         from app.models.strand import Strand
         from app.models.section import Section
         from app.models.enrollment import Enrollment
+        from app.models.activity_log import ActivityLog  # tracks admin/staff actions
 
         # Register all blueprints
         from app.routes.auth import auth

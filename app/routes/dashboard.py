@@ -56,3 +56,13 @@ def index():
         strand_data=strand_data,
         recent=recent
     )
+
+# --- Pending Count API ---
+# Called every 30s by dashboard JS to update the live badge
+@dashboard.route('/api/pending-count')
+@login_required
+def pending_count():
+    from flask import jsonify
+    from app.models.enrollment import Enrollment
+    count = Enrollment.query.filter_by(status='pending').count()
+    return jsonify({'count': count})

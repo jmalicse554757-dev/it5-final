@@ -9,6 +9,28 @@
 {% endblock %}
 
 {% block content %}
+
+<!-- Delete confirmation modal — safer than browser confirm() -->
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:14px;padding:28px;width:400px;box-shadow:0 24px 56px rgba(0,0,0,.15)">
+    <div style="font-size:15px;font-weight:700;color:var(--navy-mid);margin-bottom:4px">Delete Student</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px" id="deleteStudentName">
+      Are you sure you want to delete this student?
+    </div>
+    <div style="font-size:12px;color:var(--red);margin-bottom:20px;background:var(--red-bg);padding:10px 12px;border-radius:8px">
+      This will permanently remove the student and all their enrollment records. This cannot be undone.
+    </div>
+    <form method="POST" id="deleteForm">
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button type="button" class="btn" onclick="closeDeleteModal()">Cancel</button>
+        <button type="submit" class="btn btn-danger">
+          <i class="bi bi-trash-fill"></i> Yes, Delete
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="toolbar" style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
   <div style="display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:9px;padding:0 12px;height:36px;flex:1;min-width:220px">
     <i class="bi bi-search" style="color:var(--muted);font-size:13px"></i>
@@ -66,18 +88,24 @@
         </td>
         <td>{{ enrollment.date_applied.strftime('%b %d, %Y') if enrollment else '—' }}</td>
         <td>
-          <div style="display:flex;gap:6px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <!-- View profile + print slip -->
+            <a href="/students/{{ student.id }}/view"
+               class="btn btn-sm"
+               style="background:var(--bg);border:1px solid var(--border);color:var(--text)">
+              <i class="bi bi-eye-fill"></i> View
+            </a>
+            <!-- Edit student -->
             <a href="/students/{{ student.id }}/edit"
                class="btn btn-sm"
-               style="background:var(--navy-top);color:var(--white);border:none;display:inline-flex;align-items:center;gap:4px">
+               style="background:var(--navy-top);color:var(--white);border:none">
               <i class="bi bi-pencil-fill"></i> Edit
             </a>
-            <form method="POST" action="/students/{{ student.id }}/delete"
-                  onsubmit="return confirm('Delete {{ student.first_name }}? This cannot be undone.')">
-              <button type="submit" class="btn btn-danger btn-sm">
-                <i class="bi bi-trash-fill"></i> Delete
-              </button>
-            </form>
+            <!-- Delete — opens modal instead of browser confirm -->
+            <button type="button" class="btn btn-danger btn-sm"
+              onclick="openDeleteModal({{ student.id }}, '{{ student.get_full_name() }}')">
+              <i class="bi bi-trash-fill"></i> Delete
+            </button>
           </div>
         </td>
       </tr>
@@ -112,19 +140,20 @@
 
 <style>
 .page-link {
-  width: 30px; height: 30px; border-radius: 7px;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600; cursor: pointer;
-  border: 1px solid var(--border); background: var(--white);
-  color: var(--text); text-decoration: none; transition: .15s;
+  width:30px;height:30px;border-radius:7px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;cursor:pointer;
+  border:1px solid var(--border);background:var(--white);
+  color:var(--text);text-decoration:none;transition:.15s;
 }
-.page-link.active { background: var(--navy-top); color: var(--white); border-color: var(--navy-top); }
-.page-link:hover:not(.active) { background: var(--bg); }
+.page-link.active{background:var(--navy-top);color:var(--white);border-color:var(--navy-top);}
+.page-link:hover:not(.active){background:var(--bg);}
 </style>
 {% endblock %}
 
 {% block scripts %}
 <script>
+// Filter table by search, strand, and status simultaneously
 function filterTable() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const strand = document.getElementById('strandFilter').value.toLowerCase();
@@ -137,5 +166,44 @@ function filterTable() {
     row.style.display = ok ? '' : 'none';
   });
 }
+
+// Delete confirmation modal — replaces the browser's built-in confirm()
+function openDeleteModal(id, name) {
+  document.getElementById('deleteForm').action = '/students/' + id + '/delete';
+  document.getElementById('deleteStudentName').textContent =
+    'You are about to delete ' + name + '. Are you sure?';
+  document.getElementById('deleteModal').style.display = 'flex';
+}
+function closeDeleteModal() {
+  document.getElementById('deleteModal').style.display = 'none';
+}
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+
+// Keyboard shortcuts — works across any page that loads this template
+document.addEventListener('keydown', function(e) {
+  // Skip if user is typing in an input or textarea
+  if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+
+  // N — go to Add Student
+  if (e.key === 'n' || e.key === 'N') window.location.href = '/students/add';
+
+  // P — go to Pending
+  if (e.key === 'p' || e.key === 'P') window.location.href = '/pending';
+
+  // R — go to Reports
+  if (e.key === 'r' || e.key === 'R') window.location.href = '/reports';
+
+  // D — go to Dashboard
+  if (e.key === 'd' || e.key === 'D') window.location.href = '/dashboard';
+
+  // / — focus search input
+  if (e.key === '/') {
+    e.preventDefault();
+    const s = document.getElementById('searchInput');
+    if (s) s.focus();
+  }
+});
 </script>
 {% endblock %}
